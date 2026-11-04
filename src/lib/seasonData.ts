@@ -1,3 +1,5 @@
+import { loadLayouts } from './layoutData';
+import { Layout, layoutFor } from './layouts';
 import { getServerDb } from './serverDb';
 import { raceSlug } from './slug';
 
@@ -59,6 +61,10 @@ function getSlugMaps(): Promise<SlugMaps> {
     })();
   }
   return slugMaps;
+}
+
+export async function raceSlugById(): Promise<Map<number, string>> {
+  return (await getSlugMaps()).byId;
 }
 
 export async function allSeasonYears(): Promise<number[]> {
@@ -178,6 +184,9 @@ export type RacePageData = {
   name: string;
   race_date: string | null;
   circuit: string | null;
+  circuit_id: string | null;
+  layouts: Layout[]; // the track drawings for this circuit
+  layout_index: number; // the one used that season
   locality: string | null;
   country: string | null;
   season_races: number;
@@ -195,11 +204,11 @@ export async function loadRace(slug: string): Promise<RacePageData | null> {
   if (raceId === undefined) return null;
   const db = await getServerDb();
   const head = await db.getFirstAsync<{
-    season_year: number; round: number; name: string; race_date: string | null; circuit: string | null; locality: string | null; country: string | null;
+    season_year: number; round: number; name: string; race_date: string | null; circuit: string | null; circuit_id: string | null; locality: string | null; country: string | null;
     winner_id: string | null; winner: string | null; winner_team: string | null;
   }>(
     `SELECT ra.season_year AS season_year, ra.round AS round, ra.name AS name, ra.race_date AS race_date,
-            ci.name AS circuit, ci.locality AS locality, ci.country AS country,
+            ra.circuit_id AS circuit_id, ci.name AS circuit, ci.locality AS locality, ci.country AS country,
             wd.driver_id AS winner_id, wd.given_name || ' ' || wd.family_name AS winner, wt.name AS winner_team
      FROM race ra
      LEFT JOIN circuit ci ON ci.circuit_id = ra.circuit_id
@@ -237,6 +246,7 @@ export async function loadRace(slug: string): Promise<RacePageData | null> {
     'SELECT race_id, round, name FROM race WHERE season_year = ? ORDER BY round',
     [head.season_year]
   );
+  const layouts = await loadLayouts(head.circuit_id);
   const at = around.findIndex((r) => r.race_id === raceId);
   const link = (r: { race_id: number; name: string } | undefined) => (r ? { slug: byId.get(r.race_id) ?? '', name: r.name } : null);
 
@@ -247,6 +257,9 @@ export async function loadRace(slug: string): Promise<RacePageData | null> {
     name: head.name,
     race_date: head.race_date,
     circuit: head.circuit,
+    circuit_id: head.circuit_id,
+    layouts,
+    layout_index: layouts.length > 0 ? layoutFor(layouts, head.season_year) : 0,
     locality: head.locality,
     country: head.country,
     season_races: around.length,

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import TrackCard from '@/components/TrackCard';
 import type { RacePageData } from '@/lib/seasonData';
 import { fmtNum, formatDuration, longDate } from '@/lib/format';
 
@@ -48,12 +49,14 @@ export default function RaceView({ data }: { data: RacePageData }) {
         </div>
         <div className="grad">
           <span className="lbl" style={{ color: '#FFD6DE' }}>Circuit</span>
-          <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>{d.circuit ?? 'Unknown'}</p>
+          <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>{d.circuit_id ? <Link href={`/circuits/${d.circuit_id}`}>{d.circuit ?? 'Unknown'}</Link> : d.circuit ?? 'Unknown'}</p>
           <p className="sub">{[d.locality, d.country].filter(Boolean).join(', ')}</p>
         </div>
       </section>
 
-      <div className="between" style={{ margin: '32px 0 14px', flexWrap: 'wrap' }}>
+      <section className="split" style={{ gridTemplateColumns: d.layouts.length > 0 ? 'minmax(0, 1fr) 340px' : 'minmax(0, 1fr)', marginTop: 32 }}>
+      <div>
+      <div className="between" style={{ margin: '0 0 14px', flexWrap: 'wrap' }}>
         {d.quali.length > 0 ? (
           <div className="seg full" role="group" aria-label="Race views">
             <button className={tab === 'results' ? 'on' : ''} onClick={() => setTab('results')}>Results</button>
@@ -114,6 +117,15 @@ export default function RaceView({ data }: { data: RacePageData }) {
           </table>
         </div>
       </div>
+
+      </div>
+      {d.layouts.length > 0 ? (
+        <aside className="col">
+          <TrackCard layouts={d.layouts} initial={d.layout_index} year={d.year} />
+          {d.circuit_id ? <Link className="link" href={`/circuits/${d.circuit_id}`}>All races and layouts at {d.circuit} ›</Link> : null}
+        </aside>
+      ) : null}
+      </section>
 
       <div className="between" style={{ marginTop: 28, flexWrap: 'wrap' }}>
         {d.prev ? <Link className="btn" href={`/races/${d.prev.slug}`}>‹ {d.prev.name}</Link> : <span />}

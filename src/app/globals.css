@@ -189,3 +189,29 @@ button.car-credit{cursor:pointer;text-decoration:underline}
   .g6{grid-template-columns:repeat(3,minmax(0,1fr))}
   .car-photo{height:230px}
 }
+
+/* circuits and the globe */
+:root{--globe-sea:#EFE9F3;--globe-land:#CFC1E0;--globe-line:#D8CCE5}
+@media (prefers-color-scheme: dark){:root:not([data-theme='light']){--globe-sea:#1C1626;--globe-land:#3A2E52;--globe-line:#2F2540}}
+:root[data-theme='dark']{--globe-sea:#1C1626;--globe-land:#3A2E52;--globe-line:#2F2540}
+.globe-wrap{width:100%}
+.globe-box{margin:0 auto;touch-action:none;user-select:none;cursor:grab;border-radius:50%}
+.globe-box:active{cursor:grabbing}
+.globe-controls{display:flex;justify-content:center;gap:10px;margin-top:12px}
+.globe-hint{text-align:center;font-size:12px;margin-top:10px}
+.layout-chips{margin-top:14px}
+.layout-chips .chip{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}
+.layout-chips .chip.on-accent{background:var(--accent);border-color:var(--accent);color:#1E1230;font-weight:700}
+.track-box{max-width:420px;margin:12px auto 0}
+.track-box svg{display:block;width:100%;height:auto}
+@media (max-width:719px){
+  .layout-chips{flex-wrap:nowrap;overflow-x:auto}
+  .layout-chips .chip{white-space:nowrap}
+}
+
+/* filter status */
+.chips.filters .chip.on{background:linear-gradient(135deg,var(--ga),var(--gb));border-color:transparent;color:#fff;font-weight:600}
+.filter-status{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 16px;font-size:14px;color:var(--muted)}
+.filter-status b{color:var(--text)}
+.filter-status.active{color:var(--text);background:var(--tint);border:1px solid var(--link);border-radius:10px;padding:8px 14px}
+.link-btn{all:unset;cursor:pointer;color:var(--link);font-weight:600;text-decoration:underline}

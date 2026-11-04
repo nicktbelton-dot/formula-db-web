@@ -14,7 +14,7 @@ const ITEMS = [
   { href: '/records', label: 'Records' },
 ];
 // Sections that exist so far; the others show greyed out until they are built.
-const BUILT = new Set(['/', '/drivers', '/teams', '/seasons']);
+const BUILT = new Set(['/', '/drivers', '/teams', '/circuits', '/seasons']);
 
 function toggleTheme() {
   const root = document.documentElement;

@@ -226,7 +226,7 @@ export default function Drivers() {
         </div>
 
         <div>
-          {loaded && rows.length === 0 ? <p className="empty">No drivers match these filters.</p> : null}
+          {loaded && rows.length === 0 ? <p className="empty">No drivers match these filters. <button className="link-btn" onClick={reset}>Clear filters</button></p> : null}
 
           {view === 'table' && rows.length > 0 ? (
             <div className="tbl-wrap">
