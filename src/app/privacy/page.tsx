@@ -1,4 +1,4 @@
-﻿export const metadata = { title: 'Privacy Â· Formula DB' };
+﻿export const metadata = { title: 'Privacy · Formula DB' };
 
 export default function Privacy() {
   return (

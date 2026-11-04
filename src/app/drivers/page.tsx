@@ -1,5 +1,6 @@
-﻿'use client';
+'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useDbState } from '@/components/DbProvider';
 import { useFavourites } from '@/lib/favourites';
@@ -163,7 +164,7 @@ export default function Drivers() {
   );
   const th = (label: string, key: SortKey, right = true) => (
     <th className={`${right ? 'r' : ''} ${sort === key ? 'on' : ''}`} aria-sort={sort === key ? 'descending' : 'none'}>
-      <button onClick={() => setSort(key)}>{label}{sort === key ? ' â–¾' : ''}</button>
+      <button onClick={() => setSort(key)}>{label}{sort === key ? ' ▾' : ''}</button>
     </th>
   );
 
@@ -173,7 +174,7 @@ export default function Drivers() {
       <div className="between" style={{ margin: '4px 0 22px', flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontSize: 'clamp(34px, 5vw, 46px)', fontWeight: 800 }}>Drivers</h1>
-          <p className="muted" style={{ marginTop: 4 }}>{loaded ? `${all.length} drivers, 1950 to today. Sorted by ${sortLabel.toLowerCase()}.` : 'Loading the driversâ€¦'}</p>
+          <p className="muted" style={{ marginTop: 4 }}>{loaded ? `${all.length} drivers, 1950 to today. Sorted by ${sortLabel.toLowerCase()}.` : 'Loading the drivers…'}</p>
         </div>
         <div className="seg" role="group" aria-label="View">
           <button className={view === 'table' ? 'on' : ''} onClick={() => pick('table')}>Table</button>
@@ -185,8 +186,8 @@ export default function Drivers() {
       <section className="side">
         <div>
           <button className="filter-toggle" onClick={() => setFiltersOpen(!filtersOpen)} aria-expanded={filtersOpen}>
-            <span className="muted" style={{ fontSize: 13 }}>Sort: {sortLabel}{filterCount ? ` Â· ${filterCount} filter${filterCount === 1 ? '' : 's'}` : ''}</span>
-            <span className="link">Sort and filter {filtersOpen ? 'â–´' : 'â–¾'}</span>
+            <span className="muted" style={{ fontSize: 13 }}>Sort: {sortLabel}{filterCount ? ` · ${filterCount} filter${filterCount === 1 ? '' : 's'}` : ''}</span>
+            <span className="link">Sort and filter {filtersOpen ? '▴' : '▾'}</span>
           </button>
           <aside className={`filterbox${filtersOpen ? ' open' : ''}`} aria-label="Sort and filter">
             <div className="between"><h2 style={{ fontSize: 20 }}>Sort and filter</h2><button className="link" style={{ all: 'unset', cursor: 'pointer', fontSize: 13, color: 'var(--link)', fontWeight: 600 }} onClick={reset}>Reset</button></div>
@@ -247,7 +248,7 @@ export default function Drivers() {
                   {pageRows.map((d, i) => (
                     <tr key={d.driver_id}>
                       <td className="r num muted">{page * PAGE + i + 1}</td>
-                      <td><span className="nm">{d.name}</span><br /><span className="muted" style={{ fontSize: 13 }}>{d.nationality}</span></td>
+                      <td><Link className="nm" href={`/drivers/${d.driver_id}`}>{d.name}</Link><br /><span className="muted" style={{ fontSize: 13 }}>{d.nationality}</span></td>
                       <td className="num">{years(d)}</td>
                       <td className="r num">{d.career_starts}</td>
                       <td className="r num nm">{d.career_wins}</td>
@@ -267,8 +268,8 @@ export default function Drivers() {
               {pageRows.map((d) => (
                 <div key={d.driver_id} className="item">
                   <div>
-                    <b>{d.name}</b>
-                    <div className="acc">{[d.nationality, years(d)].filter(Boolean).join(' Â· ')}</div>
+                    <b><Link href={`/drivers/${d.driver_id}`}>{d.name}</Link></b>
+                    <div className="acc">{[d.nationality, years(d)].filter(Boolean).join(' · ')}</div>
                   </div>
                   <span className="end num">{sort === 'name' || sort === 'first' ? `${d.career_wins} wins` : `${value(d, sort)} ${SORTS.find((s) => s.key === sort)?.label.replace('Most ', '').toLowerCase()}`}</span>
                   {heart(d)}

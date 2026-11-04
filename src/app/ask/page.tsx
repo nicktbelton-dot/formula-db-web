@@ -23,7 +23,7 @@ export default function Ask() {
     setWorking(false);
   }
 
-  // a question can arrive in the address (?q=â€¦) from the search box or the examples on Home
+  // a question can arrive in the address (?q=…) from the search box or the examples on Home
   useEffect(() => {
     if (!db || started.current) return;
     const q = new URLSearchParams(window.location.search).get('q');
@@ -52,7 +52,7 @@ export default function Ask() {
         <button className="btn pri" style={{ height: 38 }} disabled={!db || working}>Ask</button>
       </form>
       {error ? <p className="empty">The data could not be loaded: {error}</p> : null}
-      {!db && !error ? <p className="muted">Opening the databaseâ€¦</p> : null}
+      {!db && !error ? <p className="muted">Opening the database…</p> : null}
       {answer ? (
         <section className="panel" style={{ padding: 24 }}>
           <p style={{ fontSize: 20, fontWeight: 600 }}>{answer.text}</p>
@@ -61,7 +61,7 @@ export default function Ask() {
             <div style={{ marginTop: 14 }}>
               {answer.rows.slice(0, 12).map((r, i) => (
                 <div key={i} className="between" style={{ borderTop: '1px solid rgba(255,255,255,.14)', padding: '9px 0' }}>
-                  <span>{r.title}{r.sub ? <span className="sub"> Â· {r.sub}</span> : null}</span>
+                  <span>{r.title}{r.sub ? <span className="sub"> · {r.sub}</span> : null}</span>
                   <strong>{r.right}</strong>
                 </div>
               ))}

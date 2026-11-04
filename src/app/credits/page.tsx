@@ -1,4 +1,4 @@
-﻿export const metadata = { title: 'Credits Â· Formula DB' };
+﻿export const metadata = { title: 'Credits · Formula DB' };
 
 export default function Credits() {
   return (

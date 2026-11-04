@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -14,7 +14,7 @@ const ITEMS = [
   { href: '/records', label: 'Records' },
 ];
 // Sections that exist so far; the others show greyed out until they are built.
-const BUILT = new Set(['/', '/drivers']);
+const BUILT = new Set(['/', '/drivers', '/seasons']);
 
 function toggleTheme() {
   const root = document.documentElement;
@@ -52,7 +52,8 @@ export default function Header() {
     if (q) router.push(`/ask?q=${encodeURIComponent(q)}`);
   }
 
-  const isOn = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  const isOn = (href: string) =>
+    href === '/' ? pathname === '/' : href === '/seasons' ? pathname.startsWith('/seasons') || pathname.startsWith('/races') : pathname.startsWith(href);
   const items = ITEMS.map((i) =>
     BUILT.has(i.href) ? (
       <Link key={i.href} href={i.href} className={isOn(i.href) ? 'on' : ''}>

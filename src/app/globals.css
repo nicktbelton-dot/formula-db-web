@@ -1,4 +1,4 @@
-﻿/* Formula DB web: colour tokens and components, from the approved mock-ups. Light by default, dark with the device. */
+/* Formula DB web: colour tokens and components, from the approved mock-ups. Light by default, dark with the device. */
 :root{--bg:#FFFFFF;--text:#1C1626;--muted:#675F73;--card:#1E1230;--oncard:#FFFFFF;--oncardmuted:#C9B8E0;--accent:#FF8FA3;--link:#C2253F;--divider:#EEE9F2;--border:#D5CEDC;--input:#FFFFFF;--navbg:#FFFFFF;--ga:#C2253F;--gb:#3B1F6B;--tint:#FBF4F7;color-scheme:light}
 @media (prefers-color-scheme: dark){:root:not([data-theme='light']){--bg:#0E0B14;--text:#F4F1F8;--muted:#B0A6C4;--card:#1F1630;--link:#FF8FA3;--divider:#2A2038;--border:#3A2E4F;--input:#171021;--navbg:#150F1F;--tint:#1B1228;color-scheme:dark}}
 :root[data-theme='dark']{--bg:#0E0B14;--text:#F4F1F8;--muted:#B0A6C4;--card:#1F1630;--link:#FF8FA3;--divider:#2A2038;--border:#3A2E4F;--input:#171021;--navbg:#150F1F;--tint:#1B1228;color-scheme:dark}
@@ -130,3 +130,46 @@ kbd{font:600 11px var(--font-inter),sans-serif;border:1px solid var(--border);bo
   .filterbox{display:none}
   .filterbox.open{display:flex}
 }
+
+/* driver page */
+.split{display:grid;grid-template-columns:340px minmax(0,1fr);gap:32px;align-items:start}
+.g7{display:grid;grid-template-columns:repeat(7,auto);gap:12px}
+.avatar{width:132px;height:132px;border-radius:16px;background:linear-gradient(135deg,var(--ga),var(--gb));display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-barlow),sans-serif;font-weight:800;font-size:44px;flex:none}
+.tag{display:inline-block;background:var(--divider);color:var(--text);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600}
+.bio{max-width:62ch}
+.bio.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.src{font-size:12px;color:var(--muted);margin-top:8px}
+.panel .sub a,.panel .link{color:var(--accent)}
+.lane{display:grid;grid-template-columns:120px minmax(0,1fr);align-items:center;gap:12px;min-height:30px}
+.lane .t{font-size:13px;color:var(--oncardmuted);text-align:right}
+.lane .bar{position:relative;height:16px}
+.lane .bar i{position:absolute;top:0;height:16px;border-radius:8px;background:linear-gradient(90deg,var(--ga),#7B4FBF)}
+.star{color:#F5B301;font-size:15px;position:absolute;top:-2px;transform:translateX(-50%)}
+.tl-plot{position:relative}
+.tl-hit{position:absolute;left:132px;right:0;top:0;bottom:0;display:flex}
+.tl-hit button{flex:1;border:0;background:transparent;cursor:pointer;padding:0}
+.tl-hit button:hover{background:rgba(255,255,255,.06)}
+.tl-hit button.on{background:rgba(255,255,255,.14)}
+.tl-bars{display:flex;align-items:flex-end;height:44px;width:100%}
+.tl-bars span{flex:1;margin:0 1px;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--accent),var(--ga))}
+.years{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;font-size:12px;color:var(--oncardmuted);margin-top:6px}
+.years div:last-child{display:flex;justify-content:space-between}
+.score b{font-weight:700}
+.score .win{color:var(--accent)}
+@media (max-width:719px){
+  .split{grid-template-columns:minmax(0,1fr)}
+  .g7{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .avatar{width:84px;height:84px;font-size:30px}
+  .lane,.years{grid-template-columns:78px minmax(0,1fr)}
+  .tl-hit{left:90px}
+}
+.g7 .tile{padding:16px 14px}
+.tile b,.tile span{white-space:nowrap}
+.tile b.long{font-size:28px}
+@media (max-width:719px){.tile b.long{font-size:20px}}
+
+/* race and season pages */
+.tbl .pos{font-family:var(--font-barlow),sans-serif;font-weight:700;font-size:20px;width:56px}
+.tbl tr.pod td{background:var(--tint)}
+.tbl .ph{color:var(--muted);font-style:italic}
+[hidden]{display:none !important}

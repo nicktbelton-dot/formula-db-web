@@ -1,4 +1,4 @@
-﻿export const metadata = { title: 'Contact Â· Formula DB' };
+﻿export const metadata = { title: 'Contact · Formula DB' };
 
 export default function Contact() {
   return (

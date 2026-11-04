@@ -1,4 +1,4 @@
-﻿export const metadata = { title: 'About and sources Â· Formula DB' };
+﻿export const metadata = { title: 'About and sources · Formula DB' };
 
 export default function About() {
   return (
