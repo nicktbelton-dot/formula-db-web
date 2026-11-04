@@ -1,9 +1,8 @@
-import type { NextConfig } from "next";
+﻿import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  output: 'export', // the site is built as plain static files
+  images: { unoptimized: true },
 };
 
 export default nextConfig;

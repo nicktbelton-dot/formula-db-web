@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# copied in by npm run sync
+/public/f1.db
+/public/sql-wasm.wasm
+/src/core/
