@@ -84,7 +84,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
                       <td>{r.has_results ? <Link className="link" href={`/races/${r.slug}`}>{r.name}</Link> : <span className="nm">{r.name}</span>}</td>
                       <td className="num muted">{shortDate(r.race_date)}</td>
                       <td className="nm">{r.winner_id ? <Link href={`/drivers/${r.winner_id}`}>{r.winner}</Link> : '–'}</td>
-                      <td>{r.winner_team ?? ''}</td>
+                      <td>{r.winner_team_id ? <Link href={`/teams/${r.winner_team_id}`}>{r.winner_team}</Link> : r.winner_team ?? ''}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -125,7 +125,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
                     {teams.map((t) => (
                       <tr key={t.team_id}>
                         <td className="r num muted">{t.pos ?? '–'}</td>
-                        <td className="nm">{t.name}</td>
+                        <td className="nm"><Link href={`/teams/${t.team_id}`}>{t.name}</Link></td>
                         <td className="r num">{t.wins}</td>
                         <td className="r num nm">{fmtNum(t.points)}</td>
                       </tr>
@@ -158,7 +158,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
                 {teams.slice(0, 3).map((t) => (
                   <div key={t.team_id} className="item" style={{ background: 'transparent', padding: '8px 0' }}>
                     <span className="cond" style={{ fontSize: 22, fontWeight: 700, width: 28, color: 'var(--accent)' }}>{t.pos ?? '–'}</span>
-                    <b>{t.name}</b>
+                    <b><Link href={`/teams/${t.team_id}`}>{t.name}</Link></b>
                     <span className="end num">{fmtNum(t.points)}</span>
                   </div>
                 ))}

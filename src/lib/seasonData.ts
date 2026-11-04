@@ -16,6 +16,7 @@ export type RaceLine = {
   winner_id: string | null;
   winner: string | null;
   winner_team: string | null;
+  winner_team_id: string | null;
 };
 export type DriverStanding = { driver_id: string; name: string; pos: number | null; points: number; wins: number; teams: string };
 export type TeamStanding = { team_id: string; name: string; pos: number | null; points: number; wins: number };
@@ -93,7 +94,7 @@ export async function loadSeason(year: number): Promise<SeasonPageData | null> {
   const raceRows = await db.getAllAsync<Omit<RaceLine, 'slug' | 'has_results'> & { n_results: number }>(
     `SELECT ra.race_id AS race_id, ra.round AS round, ra.name AS name, ra.race_date AS race_date, ci.name AS circuit,
             (SELECT COUNT(*) FROM result rr WHERE rr.race_id = ra.race_id) AS n_results,
-            wd.driver_id AS winner_id, wd.given_name || ' ' || wd.family_name AS winner, wt.name AS winner_team
+            wd.driver_id AS winner_id, wd.given_name || ' ' || wd.family_name AS winner, wt.name AS winner_team, wt.team_id AS winner_team_id
      FROM race ra
      LEFT JOIN circuit ci ON ci.circuit_id = ra.circuit_id
      LEFT JOIN driver wd ON wd.driver_id = ra.winner_driver_id
@@ -166,9 +167,10 @@ export type ResultRow = {
   driver_id: string;
   driver: string;
   team: string;
+  team_id: string;
   status: string | null;
 };
-export type QualiRow = { qualifying_id: number; position: number | null; driver_id: string; driver: string; team: string; q1_time: string | null; q2_time: string | null; q3_time: string | null };
+export type QualiRow = { qualifying_id: number; position: number | null; driver_id: string; driver: string; team: string; team_id: string; q1_time: string | null; q2_time: string | null; q3_time: string | null };
 export type RacePageData = {
   slug: string;
   year: number;
@@ -216,7 +218,7 @@ export async function loadRace(slug: string): Promise<RacePageData | null> {
   const results = await db.getAllAsync<ResultRow>(
     `SELECT r.result_id AS result_id, r.position_text AS position_text, r.grid AS grid, r.laps AS laps, r.points AS points,
             r.race_time_ms AS race_time_ms, r.fastest_lap_rank AS fastest_lap_rank,
-            d.driver_id AS driver_id, d.given_name || ' ' || d.family_name AS driver, t.name AS team, s.status AS status
+            d.driver_id AS driver_id, d.given_name || ' ' || d.family_name AS driver, t.name AS team, t.team_id AS team_id, s.status AS status
      FROM result r JOIN driver d ON d.driver_id = r.driver_id JOIN team t ON t.team_id = r.team_id
      LEFT JOIN status s ON s.status_id = r.status_id
      WHERE r.race_id = ?
@@ -225,7 +227,7 @@ export async function loadRace(slug: string): Promise<RacePageData | null> {
   );
   const quali = await db.getAllAsync<QualiRow>(
     `SELECT q.qualifying_id AS qualifying_id, q.position AS position, d.driver_id AS driver_id,
-            d.given_name || ' ' || d.family_name AS driver, t.name AS team, q.q1_time AS q1_time, q.q2_time AS q2_time, q.q3_time AS q3_time
+            d.given_name || ' ' || d.family_name AS driver, t.name AS team, t.team_id AS team_id, q.q1_time AS q1_time, q.q2_time AS q2_time, q.q3_time AS q3_time
      FROM qualifying q JOIN driver d ON d.driver_id = q.driver_id JOIN team t ON t.team_id = q.team_id
      WHERE q.race_id = ?
      ORDER BY CASE WHEN q.position IS NULL THEN 1 ELSE 0 END, q.position, q.qualifying_id`,

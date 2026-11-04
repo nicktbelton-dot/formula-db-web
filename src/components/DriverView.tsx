@@ -5,6 +5,7 @@ import { useState } from 'react';
 import type { Timeline } from '@/core/timelineData';
 import type { Battle, DriverPageData } from '@/lib/driverData';
 import { useFavourites } from '@/lib/favourites';
+import Tile from '@/components/Tile';
 
 type ViewKey = 'career' | 'qualifying' | 'teammates';
 
@@ -196,7 +197,7 @@ export default function DriverView({ data }: { data: DriverPageData }) {
               <div className="stack" style={{ marginTop: 10, gap: 8 }}>
                 {[...stints].reverse().map((s) => (
                   <div key={s.team_id} className="between">
-                    <b>{s.team}</b>
+                    <b><Link href={`/teams/${s.team_id}`}>{s.team}</Link></b>
                     <span className="sub num">{s.from_year === s.to_year ? s.from_year : `${s.from_year} to ${s.to_year}`}</span>
                   </div>
                 ))}
@@ -208,7 +209,7 @@ export default function DriverView({ data }: { data: DriverPageData }) {
         <div className="col" style={{ gap: 20 }}>
           <div className="g7">
             {tiles.map(([label, value]) => (
-              <div key={label} className="tile"><b className={`num${value.length > 5 ? ' long' : ''}`}>{value}</b><span>{label}</span></div>
+              <Tile key={label} label={label} value={value} />
             ))}
           </div>
 
@@ -234,10 +235,10 @@ export default function DriverView({ data }: { data: DriverPageData }) {
                 <p className="muted" style={{ marginTop: 4 }}>Qualifying results are available from 1994.</p>
               </div>
               <div className="g4">
-                <div className="tile"><b className="num">{qSum.poles ?? 0}</b><span>Poles</span></div>
-                <div className="tile"><b className="num">{qSum.front_rows ?? 0}</b><span>Front rows</span></div>
-                <div className="tile"><b className="num">{qSum.best !== null ? `P${qSum.best}` : '–'}</b><span>Best</span></div>
-                <div className="tile"><b className="num">{qSum.avg !== null ? `P${qSum.avg.toFixed(1)}` : '–'}</b><span>Average</span></div>
+                <Tile label="Poles" value={qSum.poles ?? 0} />
+                <Tile label="Front rows" value={qSum.front_rows ?? 0} />
+                <Tile label="Best" value={qSum.best !== null ? `P${qSum.best}` : '–'} />
+                <Tile label="Average" value={qSum.avg !== null ? `P${qSum.avg.toFixed(1)}` : '–'} />
               </div>
               <div className="stack">
                 {qSeasons.map((q) => (

@@ -81,7 +81,7 @@ export default function RaceView({ data }: { data: RacePageData }) {
                     <tr key={r.result_id} className={numeric && Number(r.position_text) <= 3 ? 'pod' : ''}>
                       <td className="pos" style={{ opacity: numeric ? 1 : 0.55 }}>{r.position_text ?? '–'}</td>
                       <td className="nm"><Link href={`/drivers/${r.driver_id}`}>{r.driver}</Link></td>
-                      <td>{r.team}</td>
+                      <td><Link href={`/teams/${r.team_id}`}>{r.team}</Link></td>
                       <td className="r num">{r.grid ? r.grid : r.grid === 0 ? 'Pit' : '–'}</td>
                       <td className="r num">{r.laps ?? '–'}</td>
                       <td>{result}{r.fastest_lap_rank === 1 ? <span className="tag" style={{ marginLeft: result ? 8 : 0 }}>Fastest lap</span> : null}</td>
@@ -104,7 +104,7 @@ export default function RaceView({ data }: { data: RacePageData }) {
                 <tr key={q.qualifying_id}>
                   <td className="pos">{q.position ?? '–'}</td>
                   <td className="nm"><Link href={`/drivers/${q.driver_id}`}>{q.driver}</Link></td>
-                  <td>{q.team}</td>
+                  <td><Link href={`/teams/${q.team_id}`}>{q.team}</Link></td>
                   <td className="num">{q.q1_time ?? ''}</td>
                   <td className="num">{q.q2_time ?? ''}</td>
                   <td className="num">{q.q3_time ?? ''}</td>

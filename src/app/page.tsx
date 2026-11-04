@@ -138,7 +138,7 @@ export default function Home() {
 
       <section className="g4" style={{ marginTop: 20 }}>
         <Link href="/drivers" className="tile"><b className="num">{counts ? counts.drivers : dash}</b><span>Drivers, 1950 to today</span></Link>
-        <div className="tile"><b className="num">{counts ? counts.teams : dash}</b><span>Teams, with lineages joined</span></div>
+        <Link href="/teams" className="tile"><b className="num">{counts ? counts.teams : dash}</b><span>Teams, with lineages joined</span></Link>
         <div className="tile"><b className="num">{counts ? counts.circuits : dash}</b><span>Circuits</span></div>
         <Link href="/seasons" className="tile"><b className="num">{counts ? counts.seasons : dash}</b><span>Seasons, 1950 to now</span></Link>
       </section>
