@@ -1,11 +1,13 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useState } from 'react';
 import type { Timeline } from '@/core/timelineData';
 import type { Battle, DriverPageData } from '@/lib/driverData';
 import { useFavourites } from '@/lib/favourites';
 import Tile from '@/components/Tile';
+import type { StatKey } from '@/core/types';
+import { statHref } from '@/lib/statLinks';
 
 type ViewKey = 'career' | 'qualifying' | 'teammates';
 
@@ -141,15 +143,17 @@ export default function DriverView({ data }: { data: DriverPageData }) {
     ...(qSum ? [{ key: 'qualifying' as const, label: 'Qualifying' }] : []),
     ...(battles.length > 0 ? [{ key: 'teammates' as const, label: 'Teammates' }] : []),
   ];
-  const tiles: [string, string][] = [
-    ['Starts', fmt(p.career_starts)],
-    ['Wins', fmt(p.career_wins)],
-    ['Poles', fmt(p.career_poles)],
-    ['Podiums', fmt(p.career_podiums)],
-    ['Fastest laps', fmt(p.career_fastest_laps ?? 0)],
-    ['Titles', fmt(p.championships)],
-    ['Points', fmt(p.career_points ?? 0)],
+  // each tile opens the list of records behind it, when there is at least one
+  const tiles: { label: string; n: number; stat: StatKey }[] = [
+    { label: 'Starts', n: p.career_starts, stat: 'starts' },
+    { label: 'Wins', n: p.career_wins, stat: 'wins' },
+    { label: 'Poles', n: p.career_poles, stat: 'poles' },
+    { label: 'Podiums', n: p.career_podiums, stat: 'podiums' },
+    { label: 'Fastest laps', n: p.career_fastest_laps ?? 0, stat: 'fastest_laps' },
+    { label: 'Titles', n: p.championships, stat: 'titles' },
+    { label: 'Points', n: p.career_points ?? 0, stat: 'points' },
   ];
+  const link = (stat: StatKey, n: number) => (n > 0 ? statHref('driver', p.driver_id, stat) : undefined);
   const years = p.first_season ? (p.first_season === p.last_season ? String(p.first_season) : `${p.first_season} to ${p.last_season}`) : '';
   const initials = `${p.given_name?.[0] ?? ''}${p.family_name?.[0] ?? ''}`;
   const bio = p.bio?.trim();
@@ -177,6 +181,7 @@ export default function DriverView({ data }: { data: DriverPageData }) {
               </svg>
               {fav ? 'Favourite' : 'Add to favourites'}
             </button>
+            <Link className="btn" href={`/compare?a=${p.driver_id}`}>Compare</Link>
           </div>
           {bio ? (
             <div>
@@ -208,8 +213,8 @@ export default function DriverView({ data }: { data: DriverPageData }) {
 
         <div className="col" style={{ gap: 20 }}>
           <div className="g7">
-            {tiles.map(([label, value]) => (
-              <Tile key={label} label={label} value={value} />
+            {tiles.map((t) => (
+              <Tile key={t.label} label={t.label} value={fmt(t.n)} href={link(t.stat, t.n)} />
             ))}
           </div>
 
@@ -235,8 +240,8 @@ export default function DriverView({ data }: { data: DriverPageData }) {
                 <p className="muted" style={{ marginTop: 4 }}>Qualifying results are available from 1994.</p>
               </div>
               <div className="g4">
-                <Tile label="Poles" value={qSum.poles ?? 0} />
-                <Tile label="Front rows" value={qSum.front_rows ?? 0} />
+                <Tile label="Poles" value={qSum.poles ?? 0} href={link('poles', qSum.poles ?? 0)} />
+                <Tile label="Front rows" value={qSum.front_rows ?? 0} href={link('front_rows', qSum.front_rows ?? 0)} />
                 <Tile label="Best" value={qSum.best !== null ? `P${qSum.best}` : '–'} />
                 <Tile label="Average" value={qSum.avg !== null ? `P${qSum.avg.toFixed(1)}` : '–'} />
               </div>

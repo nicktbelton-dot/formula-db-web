@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useState } from 'react';
 import TrackCard from '@/components/TrackCard';
 import type { RacePageData } from '@/lib/seasonData';

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { loadSeasonList } from '@/lib/seasonData';
 
 export const metadata: Metadata = {

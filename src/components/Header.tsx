@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useRef } from 'react';
 
@@ -14,11 +14,11 @@ const ITEMS = [
   { href: '/records', label: 'Records' },
 ];
 // Sections that exist so far; the others show greyed out until they are built.
-const BUILT = new Set(['/', '/drivers', '/teams', '/circuits', '/seasons']);
+const BUILT = new Set(['/', '/drivers', '/teams', '/circuits', '/seasons', '/compare', '/records']);
 
 function toggleTheme() {
   const root = document.documentElement;
-  const current = root.dataset.theme ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const current = root.dataset.theme === 'light' ? 'light' : 'dark'; // dark is the default
   const next = current === 'dark' ? 'light' : 'dark';
   root.dataset.theme = next;
   try {
@@ -93,6 +93,11 @@ export default function Header() {
             <kbd>/</kbd>
           </form>
           <span className="grow" />
+          <Link className="ib" href="/favourites" aria-label="Favourites" title="Favourites">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 12C19 16.5 12 21 12 21z" />
+            </svg>
+          </Link>
           <button className="ib" onClick={toggleTheme} aria-label="Switch light and dark mode">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />

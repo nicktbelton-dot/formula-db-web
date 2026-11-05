@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useEffect, useMemo, useState } from 'react';
 import { useDbState } from '@/components/DbProvider';
 import { fold } from '@/core/search';

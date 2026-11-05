@@ -1,12 +1,14 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useEffect, useRef, useState } from 'react';
 import { REGULATION_NOTE, regulationLines } from '@/core/eraSpecs';
 import type { Car, TeamPageData } from '@/lib/teamData';
 import { fmtNum } from '@/lib/format';
 import { useFavourites } from '@/lib/favourites';
 import Tile from '@/components/Tile';
+import type { StatKey } from '@/core/types';
+import { statHref } from '@/lib/statLinks';
 
 type Tab = 'overview' | 'cars' | 'drivers';
 const PAGE = 5; // car cards added each time
@@ -174,14 +176,15 @@ export default function TeamView({ data }: { data: TeamPageData }) {
     ...(cars.length > 0 ? [{ key: 'cars' as const, label: 'Cars' }] : []),
     { key: 'drivers', label: `Drivers (${drivers.length})` },
   ];
-  const tiles: [string, string][] = [
-    ['Starts', fmtNum(p.total_starts)],
-    ['Wins', fmtNum(p.total_wins)],
-    ['Poles', fmtNum(p.total_poles)],
-    ['Podiums', fmtNum(p.total_podiums)],
-    ['Team titles', fmtNum(p.constructors_titles)],
-    ['Driver titles', fmtNum(p.drivers_titles)],
-    ['Points', fmtNum(p.total_points)],
+  // each tile opens the list of records behind it, when there is at least one
+  const tiles: { label: string; n: number; stat: StatKey }[] = [
+    { label: 'Starts', n: p.total_starts, stat: 'starts' },
+    { label: 'Wins', n: p.total_wins, stat: 'wins' },
+    { label: 'Poles', n: p.total_poles, stat: 'poles' },
+    { label: 'Podiums', n: p.total_podiums, stat: 'podiums' },
+    { label: 'Team titles', n: p.constructors_titles, stat: 'constructors_titles' },
+    { label: 'Driver titles', n: p.drivers_titles, stat: 'drivers_titles' },
+    { label: 'Points', n: p.total_points, stat: 'points' },
   ];
   const driverRows = (list: typeof drivers) => (
     <div className="tbl-wrap">
@@ -227,7 +230,7 @@ export default function TeamView({ data }: { data: TeamPageData }) {
       </section>
 
       <section className="g7">
-        {tiles.map(([label, value]) => <Tile key={label} label={label} value={value} />)}
+        {tiles.map((t) => <Tile key={t.label} label={t.label} value={fmtNum(t.n)} href={t.n > 0 ? statHref('team', p.team_id, t.stat) : undefined} />)}
       </section>
 
       <div className="between" style={{ margin: '28px 0 16px', flexWrap: 'wrap' }}>

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useEffect, useState } from 'react';
 import { useDbState } from '@/components/DbProvider';
 import { useFavourites } from '@/lib/favourites';
@@ -11,7 +11,7 @@ type Counts = { drivers: number; teams: number; circuits: number; seasons: numbe
 type Champion = { year: number; id: string; name: string; team: string | null; left: number };
 type RaceLine = { name: string; race_date: string; circuit: string | null; season_year: number };
 type Person = { driver_id: string; name: string; wins: number };
-type Fact = { label: string; title: string; right?: string };
+type Fact = { key: string; label: string; title: string; right?: string };
 
 const EXAMPLES = [
   'Which car won the 1988 championship?',
@@ -85,7 +85,7 @@ export default function Home() {
       const def = RECORDS[Math.floor(Date.now() / 86400000) % RECORDS.length];
       try {
         const rows = await def.load(db as never);
-        if (rows[0]) setFact({ label: def.title, title: rows[0].title, right: rows[0].right });
+        if (rows[0]) setFact({ key: def.key, label: def.title, title: rows[0].title, right: rows[0].right });
       } catch {
         /* the card simply stays hidden */
       }
@@ -162,6 +162,7 @@ export default function Home() {
                 <span className="lbl" style={{ color: '#FFD6DE' }}>{fact.label}</span>
                 <p className="cond" style={{ fontSize: 34, fontWeight: 700, marginTop: 6 }}>{fact.title}</p>
                 {fact.right ? <p className="sub" style={{ fontSize: 16 }}>{fact.right}</p> : null}
+                <Link href={`/records/${fact.key}`} style={{ color: '#fff', fontWeight: 600, display: 'inline-block', marginTop: 14 }}>Open the record ›</Link>
               </>
             ) : (
               <p className="sub">Loading…</p>
@@ -169,6 +170,13 @@ export default function Home() {
           </div>
         </div>
         <div>
+          <h2 className="h-sec">Records and trivia</h2>
+          <div className="stack">
+            {RECORDS.slice(0, 4).map((r) => (
+              <Link key={r.key} href={`/records/${r.key}`} className="item"><b>{r.title}</b><span className="go end">›</span></Link>
+            ))}
+            <Link className="link" href="/records" style={{ padding: '6px 2px' }}>All records and trivia ›</Link>
+          </div>
           <h2 className="h-sec">Most wins</h2>
           <div className="stack">
             {top.map((p) => (
@@ -189,8 +197,9 @@ export default function Home() {
         </div>
         <div>
           <h2 className="h-sec">Favourites</h2>
+          {favDrivers.length > 0 ? <Link className="link" href="/favourites" style={{ display: 'inline-block', margin: '-8px 0 10px' }}>All favourites ›</Link> : null}
           {favDrivers.length === 0 ? (
-            <div className="empty">Tap the heart on a driver in the list to keep them here. Favourites are stored in this browser.</div>
+            <div className="empty">Tap the heart on a driver, team or circuit to keep it here. Favourites are stored in this browser.</div>
           ) : (
             <div className="stack">
               {favDrivers.map((p) => (
