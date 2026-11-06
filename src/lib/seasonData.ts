@@ -185,6 +185,8 @@ export type RacePageData = {
   race_date: string | null;
   circuit: string | null;
   circuit_id: string | null;
+  lat: number | null;
+  lon: number | null;
   layouts: Layout[]; // the track drawings for this circuit
   layout_index: number; // the one used that season
   locality: string | null;
@@ -204,11 +206,11 @@ export async function loadRace(slug: string): Promise<RacePageData | null> {
   if (raceId === undefined) return null;
   const db = await getServerDb();
   const head = await db.getFirstAsync<{
-    season_year: number; round: number; name: string; race_date: string | null; circuit: string | null; circuit_id: string | null; locality: string | null; country: string | null;
+    season_year: number; round: number; name: string; race_date: string | null; circuit: string | null; circuit_id: string | null; lat: number | null; lon: number | null; locality: string | null; country: string | null;
     winner_id: string | null; winner: string | null; winner_team: string | null;
   }>(
     `SELECT ra.season_year AS season_year, ra.round AS round, ra.name AS name, ra.race_date AS race_date,
-            ra.circuit_id AS circuit_id, ci.name AS circuit, ci.locality AS locality, ci.country AS country,
+            ra.circuit_id AS circuit_id, ci.latitude AS lat, ci.longitude AS lon, ci.name AS circuit, ci.locality AS locality, ci.country AS country,
             wd.driver_id AS winner_id, wd.given_name || ' ' || wd.family_name AS winner, wt.name AS winner_team
      FROM race ra
      LEFT JOIN circuit ci ON ci.circuit_id = ra.circuit_id
@@ -258,6 +260,8 @@ export async function loadRace(slug: string): Promise<RacePageData | null> {
     race_date: head.race_date,
     circuit: head.circuit,
     circuit_id: head.circuit_id,
+    lat: head.lat,
+    lon: head.lon,
     layouts,
     layout_index: layouts.length > 0 ? layoutFor(layouts, head.season_year) : 0,
     locality: head.locality,

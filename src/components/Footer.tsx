@@ -13,7 +13,7 @@ export default function Footer() {
         <div>Unofficial. Not affiliated with Formula 1.</div>
       </div>
       <p style={{ marginTop: 14, maxWidth: '90ch' }}>
-        Results from Jolpica-F1, cars and layouts from F1DB (CC BY 4.0), biographies from Wikipedia (CC BY-SA 4.0), photos from Wikimedia Commons, each credited where it appears.
+        Results from Jolpica-F1, cars and layouts from F1DB (CC BY 4.0), biographies from Wikipedia (CC BY-SA 4.0), photos from Wikimedia Commons, weather from Open-Meteo.com (CC BY 4.0), each credited where it appears.
       </p>
     </footer>
   );

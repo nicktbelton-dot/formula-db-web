@@ -286,3 +286,21 @@ header.nav,main.wrap,.wrap{position:relative;z-index:1}
 /* ask and favourites */
 .ask-row{width:100%;border-top:1px solid rgba(255,255,255,.14);padding:9px 0;color:inherit}
 a.ask-row:hover{background:rgba(255,255,255,.05)}
+
+/* weather */
+.wx{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.16)}
+.wx-title{font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;color:var(--accent)}
+.wx-note{margin-top:6px;font-size:14px;color:var(--oncardmuted)}
+.wx-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:10px}
+.wx-day{display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;color:#fff}
+.wx-day.race{background:rgba(255,143,163,.18);outline:1px solid var(--accent)}
+.wx-label{font-size:12px;font-weight:600;color:var(--oncardmuted)}
+.wx-icon{font-size:26px;line-height:1.2}
+.wx-low{font-weight:400;color:var(--oncardmuted)}
+.wx-line{font-size:12px;color:var(--oncardmuted)}
+.wx-credit{margin-top:10px;font-size:11px;color:var(--oncardmuted)}
+.wx-credit a{text-decoration:underline}
+.wx-light .wx-title{color:var(--link)}
+
+/* favourite buttons */
+.btn.fav-on,.ib.fav-on{background:linear-gradient(135deg,var(--ga),var(--gb));border-color:transparent;color:#fff}

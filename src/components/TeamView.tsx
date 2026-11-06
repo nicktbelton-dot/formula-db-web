@@ -220,11 +220,11 @@ export default function TeamView({ data }: { data: TeamPageData }) {
           </div>
         </div>
         <div className="row">
-          <button className="btn" aria-pressed={fav} onClick={() => toggle(`team:${p.team_id}`)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? '#C2253F' : 'none'} stroke={fav ? '#C2253F' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+          <button className={`btn${fav ? ' fav-on' : ''}`} aria-pressed={fav} onClick={() => toggle(`team:${p.team_id}`)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? '#FFFFFF' : 'none'} stroke={fav ? '#FFFFFF' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 12C19 16.5 12 21 12 21z" />
             </svg>
-            {fav ? 'Favourite' : 'Add to favourites'}
+            {fav ? 'Saved to favourites' : 'Add to favourites'}
           </button>
         </div>
       </section>

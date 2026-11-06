@@ -161,8 +161,8 @@ export default function DriverView({ data }: { data: DriverPageData }) {
   return (
     <div>
       <p className="crumb"><Link href="/drivers">Drivers</Link> › {p.name}</p>
-      <section className="split" style={{ marginTop: 12 }}>
-        <aside className="col" style={{ gap: 20 }}>
+      <section className="between" style={{ alignItems: 'flex-end', flexWrap: 'wrap', margin: '6px 0 22px', gap: 20 }}>
+        <div className="row" style={{ alignItems: 'flex-end', gap: 20 }}>
           <div className="avatar" role="img" aria-label="Portrait placeholder">{initials}</div>
           <div>
             <h1 className="hero-name">{p.name}</h1>
@@ -174,15 +174,20 @@ export default function DriverView({ data }: { data: DriverPageData }) {
               {years ? <span className="tag">{years}</span> : null}
             </div>
           </div>
-          <div className="row">
-            <button className="btn" aria-pressed={fav} onClick={() => toggle(`driver:${p.driver_id}`)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? '#C2253F' : 'none'} stroke={fav ? '#C2253F' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 12C19 16.5 12 21 12 21z" />
-              </svg>
-              {fav ? 'Favourite' : 'Add to favourites'}
-            </button>
-            <Link className="btn" href={`/compare?a=${p.driver_id}`}>Compare</Link>
-          </div>
+        </div>
+        <div className="row">
+          <button className={`btn${fav ? ' fav-on' : ''}`} aria-pressed={fav} onClick={() => toggle(`driver:${p.driver_id}`)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? '#FFFFFF' : 'none'} stroke={fav ? '#FFFFFF' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 12C19 16.5 12 21 12 21z" />
+            </svg>
+            {fav ? 'Saved to favourites' : 'Add to favourites'}
+          </button>
+          <Link className="btn" href={`/compare?a=${p.driver_id}`}>Compare</Link>
+        </div>
+      </section>
+
+      <section className="split">
+        <aside className="col" style={{ gap: 20 }}>
           {bio ? (
             <div>
               <p className={`bio${more ? '' : ' clamp'}`}>{bio}</p>

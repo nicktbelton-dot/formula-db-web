@@ -4,13 +4,16 @@ import Link from '@/components/AppLink';
 import { useEffect, useState } from 'react';
 import { useDbState } from '@/components/DbProvider';
 import { useFavourites } from '@/lib/favourites';
+import { commonName } from '@/core/circuitNames';
 import { RECORDS } from '@/core/records';
 import { raceSlug } from '@/lib/slug';
+import RaceWeather from '@/components/RaceWeather';
 
 type Counts = { drivers: number; teams: number; circuits: number; seasons: number };
 type Champion = { year: number; id: string; name: string; team: string | null; left: number };
-type RaceLine = { name: string; race_date: string; circuit: string | null; season_year: number };
+type RaceLine = { name: string; race_date: string; circuit: string | null; season_year: number; lat?: number | null; lon?: number | null };
 type Person = { driver_id: string; name: string; wins: number };
+type FavLine = { kind: 'Driver' | 'Team' | 'Circuit'; id: string; name: string; stat: string; href: string };
 type Fact = { key: string; label: string; title: string; right?: string };
 
 const EXAMPLES = [
@@ -33,7 +36,7 @@ export default function Home() {
   const [recent, setRecent] = useState<{ year: number; name: string }[]>([]);
   const [top, setTop] = useState<Person[]>([]);
   const [fact, setFact] = useState<Fact | null>(null);
-  const [favDrivers, setFavDrivers] = useState<Person[]>([]);
+  const [favLines, setFavLines] = useState<FavLine[]>([]);
 
   useEffect(() => {
     if (!db) return;
@@ -57,7 +60,8 @@ export default function Home() {
       );
       setNext(
         await db.getFirstAsync<RaceLine>(
-          `SELECT r.name AS name, r.race_date AS race_date, c.name AS circuit, r.season_year AS season_year
+          `SELECT r.name AS name, r.race_date AS race_date, c.name AS circuit, r.season_year AS season_year,
+                  c.latitude AS lat, c.longitude AS lon
            FROM race r LEFT JOIN circuit c ON c.circuit_id = r.circuit_id
            WHERE r.winner_driver_id IS NULL AND r.race_date >= date('now', '-1 day')
            ORDER BY r.race_date LIMIT 1`
@@ -92,20 +96,33 @@ export default function Home() {
     })().catch((e) => console.error(e));
   }, [db]);
 
-  // saved drivers
+  // saved drivers, teams and circuits
   useEffect(() => {
     if (!db) return;
-    const ids = [...favs].filter((k) => k.startsWith('driver:')).map((k) => k.slice(7));
-    if (ids.length === 0) {
-      setFavDrivers([]);
-      return;
-    }
-    db.getAllAsync<Person>(
-      `SELECT driver_id, given_name || ' ' || family_name AS name, career_wins AS wins FROM driver WHERE driver_id IN (${ids.map(() => '?').join(',')})`,
-      ids
-    )
-      .then(setFavDrivers)
-      .catch((e) => console.error(e));
+    const pick = (kind: string) => [...favs].filter((k) => k.startsWith(`${kind}:`)).map((k) => k.slice(kind.length + 1));
+    const marks = (n: number) => Array.from({ length: n }, () => '?').join(',');
+    const d = pick('driver');
+    const t = pick('team');
+    const c = pick('circuit');
+    (async () => {
+      const lines: FavLine[] = [];
+      if (d.length) {
+        const rows = await db.getAllAsync<{ id: string; name: string; wins: number }>(
+          `SELECT driver_id AS id, given_name || ' ' || family_name AS name, career_wins AS wins FROM driver WHERE driver_id IN (${marks(d.length)}) ORDER BY family_name`, d);
+        rows.forEach((r) => lines.push({ kind: 'Driver', id: r.id, name: r.name, stat: `${r.wins} wins`, href: `/drivers/${r.id}` }));
+      }
+      if (t.length) {
+        const rows = await db.getAllAsync<{ id: string; name: string; wins: number }>(
+          `SELECT team_id AS id, name, total_wins AS wins FROM team WHERE team_id IN (${marks(t.length)}) ORDER BY name`, t);
+        rows.forEach((r) => lines.push({ kind: 'Team', id: r.id, name: r.name, stat: `${r.wins} wins`, href: `/teams/${r.id}` }));
+      }
+      if (c.length) {
+        const rows = await db.getAllAsync<{ id: string; name: string; races: number }>(
+          `SELECT circuit_id AS id, name, total_races AS races FROM circuit WHERE circuit_id IN (${marks(c.length)}) ORDER BY name`, c);
+        rows.forEach((r) => lines.push({ kind: 'Circuit', id: r.id, name: commonName(r.id, r.name), stat: `${r.races} races`, href: `/circuits/${r.id}` }));
+      }
+      setFavLines(lines);
+    })().catch((e) => console.error(e));
   }, [db, favs]);
 
   const dash = '…';
@@ -126,6 +143,7 @@ export default function Home() {
             <span className="lbl">Next race</span>
             <h2 style={{ fontSize: 30, marginTop: 8 }}>{next ? next.name : 'No race scheduled'}</h2>
             <p className="sub" style={{ marginTop: 6 }}>{next ? `${longDate(next.race_date)}${next.circuit ? ` · ${next.circuit}` : ''}` : 'The season is over, or the calendar is not out yet.'}</p>
+            {next && next.lat != null && next.lon != null ? <RaceWeather lat={next.lat} lon={next.lon} raceDate={next.race_date} /> : null}
           </div>
           <div className="panel" style={{ flex: 1 }}>
             <span className="lbl">Latest result</span>
@@ -153,7 +171,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="g2" style={{ gap: 28 }}>
+      <section className="g2" style={{ gap: 28, alignItems: 'start' }}>
         <div>
           <h2 className="h-sec">Did you know?</h2>
           <div className="grad">
@@ -168,8 +186,7 @@ export default function Home() {
               <p className="sub">Loading…</p>
             )}
           </div>
-        </div>
-        <div>
+
           <h2 className="h-sec">Records and trivia</h2>
           <div className="stack">
             {RECORDS.slice(0, 4).map((r) => (
@@ -177,6 +194,16 @@ export default function Home() {
             ))}
             <Link className="link" href="/records" style={{ padding: '6px 2px' }}>All records and trivia ›</Link>
           </div>
+        </div>
+
+        <div>
+          <h2 className="h-sec">Recent world champions</h2>
+          <div className="stack">
+            {recent.map((r) => (
+              <Link key={r.year} href={`/seasons/${r.year}`} className="item"><span className="acc num" style={{ width: 44 }}>{r.year}</span><b>{r.name}</b><span className="go end">›</span></Link>
+            ))}
+          </div>
+
           <h2 className="h-sec">Most wins</h2>
           <div className="stack">
             {top.map((p) => (
@@ -186,28 +213,24 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="g2" style={{ gap: 28 }}>
-        <div>
-          <h2 className="h-sec">Recent world champions</h2>
-          <div className="stack">
-            {recent.map((r) => (
-              <Link key={r.year} href={`/seasons/${r.year}`} className="item"><span className="acc num" style={{ width: 44 }}>{r.year}</span><b>{r.name}</b><span className="go end">›</span></Link>
+      <section>
+        <div className="between" style={{ alignItems: 'flex-end' }}>
+          <h2 className="h-sec">Favourites</h2>
+          <Link className="link" href="/favourites" style={{ marginBottom: 16 }}>{favLines.length > 0 ? 'All favourites ›' : 'Favourites page ›'}</Link>
+        </div>
+        {favLines.length === 0 ? (
+          <div className="empty">Nothing saved yet. Press Add to favourites on a driver, team or circuit page, or the heart at the end of a row in a list. Favourites are stored in this browser only.</div>
+        ) : (
+          <div className="g2" style={{ gap: 10 }}>
+            {favLines.map((f) => (
+              <Link key={`${f.kind}-${f.id}`} href={f.href} className="item">
+                <span className="acc" style={{ width: 62 }}>{f.kind}</span>
+                <b>{f.name}</b>
+                <span className="end sub num">{f.stat}</span>
+              </Link>
             ))}
           </div>
-        </div>
-        <div>
-          <h2 className="h-sec">Favourites</h2>
-          {favDrivers.length > 0 ? <Link className="link" href="/favourites" style={{ display: 'inline-block', margin: '-8px 0 10px' }}>All favourites ›</Link> : null}
-          {favDrivers.length === 0 ? (
-            <div className="empty">Tap the heart on a driver, team or circuit to keep it here. Favourites are stored in this browser.</div>
-          ) : (
-            <div className="stack">
-              {favDrivers.map((p) => (
-                <Link key={p.driver_id} href={`/drivers/${p.driver_id}`} className="item"><b>{p.name}</b><span className="end sub num">{p.wins} wins</span></Link>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </section>
     </div>
   );

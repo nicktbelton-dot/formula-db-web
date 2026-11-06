@@ -4,6 +4,7 @@ import Link from '@/components/AppLink';
 import { useState } from 'react';
 import Tile from '@/components/Tile';
 import TrackCard from '@/components/TrackCard';
+import TypicalWeather from '@/components/TypicalWeather';
 import type { CircuitPageData } from '@/lib/circuitData';
 import { shortDate } from '@/lib/format';
 import { useFavourites } from '@/lib/favourites';
@@ -22,6 +23,13 @@ export default function CircuitView({ data }: { data: CircuitPageData }) {
   const bio = p.bio?.trim();
   const shown = all ? races : races.slice(0, INITIAL);
   const newest = layouts.length > 0 ? layouts[layouts.length - 1] : null;
+  // the month this circuit usually races in: the most common month among its last ten races
+  const months = races.filter((r) => r.race_date).slice(0, 10).map((r) => parseInt((r.race_date as string).slice(5, 7), 10));
+  const counts = new Map<number, number>();
+  months.forEach((m) => counts.set(m, (counts.get(m) ?? 0) + 1));
+  const raceMonth = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]?.[0] ?? null;
+  const hasWeather = p.lat !== null && p.lon !== null && raceMonth !== null;
+  const showAside = layouts.length > 0 || !!bio || hasWeather;
 
   return (
     <div>
@@ -34,11 +42,11 @@ export default function CircuitView({ data }: { data: CircuitPageData }) {
             {[p.official !== p.name ? p.official : null, place || 'Unknown location'].filter(Boolean).join(' · ')}
           </p>
         </div>
-        <button className="btn" aria-pressed={fav} onClick={() => toggle(`circuit:${p.id}`)}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? '#C2253F' : 'none'} stroke={fav ? '#C2253F' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+        <button className={`btn${fav ? ' fav-on' : ''}`} aria-pressed={fav} onClick={() => toggle(`circuit:${p.id}`)}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? '#FFFFFF' : 'none'} stroke={fav ? '#FFFFFF' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
             <path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 12C19 16.5 12 21 12 21z" />
           </svg>
-          {fav ? 'Favourite' : 'Add to favourites'}
+          {fav ? 'Saved to favourites' : 'Add to favourites'}
         </button>
       </section>
 
@@ -50,7 +58,7 @@ export default function CircuitView({ data }: { data: CircuitPageData }) {
         {newest?.length_km ? <Tile label="Current length" value={`${newest.length_km.toFixed(3)} km`} /> : null}
       </section>
 
-      <section className="split" style={{ gridTemplateColumns: layouts.length > 0 || bio ? 'minmax(0, 1fr) 340px' : 'minmax(0, 1fr)', marginTop: 28 }}>
+      <section className="split" style={{ gridTemplateColumns: showAside ? 'minmax(0, 1fr) 340px' : 'minmax(0, 1fr)', marginTop: 28 }}>
         <div className="col" style={{ gap: 20 }}>
           {layouts.length > 0 ? <TrackCard layouts={layouts} initial={layouts.length - 1} /> : null}
 
@@ -82,8 +90,9 @@ export default function CircuitView({ data }: { data: CircuitPageData }) {
           </div>
         </div>
 
-        {layouts.length > 0 || bio ? (
+        {showAside ? (
           <aside className="col">
+            {hasWeather ? <TypicalWeather lat={p.lat as number} lon={p.lon as number} month={raceMonth as number} /> : null}
             {bio ? (
               <div style={{ border: '1px solid var(--divider)', borderRadius: 14, padding: 18 }}>
                 <span className="lbl" style={{ color: 'var(--link)' }}>About</span>

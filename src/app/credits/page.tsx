@@ -1,4 +1,4 @@
-﻿export const metadata = { title: 'Credits · Formula DB' };
+export const metadata = { title: 'Credits · Formula DB' };
 
 export default function Credits() {
   return (
@@ -12,6 +12,7 @@ export default function Credits() {
         <li><b>F1DB</b> (CC BY 4.0): car models, engines, tyre suppliers and track layouts. Layout drawings are by Jules Roy, distributed with F1DB.</li>
         <li><b>Wikipedia</b> (CC BY-SA 4.0): the biographies and descriptions of drivers, teams and circuits, each with a link to its source article.</li>
         <li><b>Wikimedia Commons</b>: car photographs, each used under its own open licence and credited under the picture.</li>
+        <li><b>Open-Meteo.com</b> (CC BY 4.0): weather forecasts and past weather records for the race-weekend forecast and the typical weather on circuit pages. <a className="link" href="https://open-meteo.com/" rel="noopener">open-meteo.com</a></li>
       </ul>
       <h2>Software</h2>
       <p>Built with Next.js, React and sql.js (SQLite in the browser).</p>

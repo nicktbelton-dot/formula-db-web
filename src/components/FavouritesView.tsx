@@ -50,7 +50,7 @@ export default function FavouritesView() {
       <h1 style={{ fontSize: 'clamp(34px, 5vw, 46px)', fontWeight: 800 }}>Favourites</h1>
       <p className="muted" style={{ marginTop: 4 }}>Saved in this browser only. They are not sent anywhere, and clearing your browser data removes them.</p>
 
-      {total === 0 ? <p className="empty" style={{ marginTop: 22 }}>Nothing saved yet. Use the heart on a driver, team or circuit to keep it here.</p> : null}
+      {total === 0 ? <p className="empty" style={{ marginTop: 22 }}>Nothing saved yet. On a driver, team or circuit page, press the Add to favourites button under the name; in the lists, press the heart at the end of a row. Whatever you save appears here.</p> : null}
 
       {drivers.length > 0 ? (
         <section>

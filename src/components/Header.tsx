@@ -93,7 +93,7 @@ export default function Header() {
             <kbd>/</kbd>
           </form>
           <span className="grow" />
-          <Link className="ib" href="/favourites" aria-label="Favourites" title="Favourites">
+          <Link className="ib" href="/favourites" aria-label="My favourites" title="My favourites">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 12C19 16.5 12 21 12 21z" />
             </svg>

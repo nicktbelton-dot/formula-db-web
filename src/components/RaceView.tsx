@@ -2,6 +2,7 @@
 
 import Link from '@/components/AppLink';
 import { useState } from 'react';
+import RaceWeather from '@/components/RaceWeather';
 import TrackCard from '@/components/TrackCard';
 import type { RacePageData } from '@/lib/seasonData';
 import { fmtNum, formatDuration, longDate } from '@/lib/format';
@@ -69,7 +70,10 @@ export default function RaceView({ data }: { data: RacePageData }) {
 
       <div hidden={tab !== 'results'}>
         {d.results.length === 0 ? (
-          <p className="empty">This race has not been run yet.</p>
+          <div>
+            <p className="empty">This race has not been run yet.</p>
+            {d.lat !== null && d.lon !== null && d.race_date ? <div className="panel" style={{ marginTop: 16 }}><RaceWeather lat={d.lat} lon={d.lon} raceDate={d.race_date} /></div> : null}
+          </div>
         ) : (
           <div className="tbl-wrap">
             <table className="tbl">

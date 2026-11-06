@@ -88,8 +88,8 @@ export default function CircuitsExplorer({ rows }: { rows: CircuitRow[] }) {
   const heart = (r: CircuitRow) => {
     const on = favs.has(`circuit:${r.id}`);
     return (
-      <button className="ib" style={{ width: 36, height: 36 }} onClick={() => toggle(`circuit:${r.id}`)} aria-pressed={on} aria-label={`${on ? 'Remove' : 'Add'} ${r.name} ${on ? 'from' : 'to'} favourites`}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill={on ? '#C2253F' : 'none'} stroke={on ? '#C2253F' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
+      <button className={`ib${on ? ' fav-on' : ''}`} style={{ width: 36, height: 36 }} onClick={() => toggle(`circuit:${r.id}`)} aria-pressed={on} aria-label={`${on ? 'Remove' : 'Add'} ${r.name} ${on ? 'from' : 'to'} favourites`}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill={on ? '#FFFFFF' : 'none'} stroke={on ? '#FFFFFF' : 'currentColor'} strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
           <path d="M12 21s-7-4.5-9.3-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.3 12C19 16.5 12 21 12 21z" />
         </svg>
       </button>
