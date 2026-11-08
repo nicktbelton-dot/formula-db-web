@@ -1,11 +1,14 @@
+import { pageMeta } from '@/lib/seo';
+import { urlId } from '@/lib/ids';
 import type { Metadata } from 'next';
 import Link from '@/components/AppLink';
 import { loadSeasonList } from '@/lib/seasonData';
 
-export const metadata: Metadata = {
-  title: 'Formula One seasons since 1950 · Formula DB',
+export const metadata: Metadata = pageMeta({
+  title: 'Formula One seasons since 1950',
   description: 'Every Formula One season since 1950: the champions, the number of races, and results race by race.',
-};
+  path: '/seasons',
+});
 
 export default async function Seasons() {
   const rows = await loadSeasonList();
@@ -23,7 +26,7 @@ export default async function Seasons() {
               {rows.map((r) => (
                 <tr key={r.year}>
                   <td className="num"><Link className="link" href={`/seasons/${r.year}`}>{r.year}</Link></td>
-                  <td className="nm">{r.champ_id ? <Link href={`/drivers/${r.champ_id}`}>{r.champion}</Link> : <span className="muted">In progress</span>}</td>
+                  <td className="nm">{r.champ_id ? <Link href={`/drivers/${urlId(r.champ_id)}`}>{r.champion}</Link> : <span className="muted">In progress</span>}</td>
                   <td>{r.team_champion ?? <span className="muted">{r.year < 1958 ? 'Not awarded' : 'In progress'}</span>}</td>
                   <td className="r num">{r.races}</td>
                 </tr>

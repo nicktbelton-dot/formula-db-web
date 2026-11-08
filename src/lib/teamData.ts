@@ -1,3 +1,4 @@
+import { uniqueLowerIds } from './ids';
 import { getServerDb } from './serverDb';
 
 // A team's page: profile, lineage, drivers and cars, gathered at build time (the same queries the phone app runs).
@@ -56,18 +57,19 @@ export type TeamPageData = { profile: TeamProfile; members: Member[]; drivers: T
 
 export async function allTeamIds(): Promise<string[]> {
   const db = await getServerDb();
-  return (await db.getAllAsync<{ team_id: string }>('SELECT team_id FROM team ORDER BY team_id')).map((r) => r.team_id);
+  return uniqueLowerIds((await db.getAllAsync<{ team_id: string }>('SELECT team_id FROM team ORDER BY team_id')).map((r) => r.team_id), 'team');
 }
 
-export async function loadTeam(id: string): Promise<TeamPageData | null> {
+export async function loadTeam(urlKey: string): Promise<TeamPageData | null> {
   const db = await getServerDb();
   const profile = await db.getFirstAsync<TeamProfile>(
     `SELECT team_id, name, nationality, bio, bio_source_url, bio_licence, total_starts, total_wins, total_podiums, total_poles,
             total_points, constructors_titles, drivers_titles, first_season, last_season
-     FROM team WHERE team_id = ?`,
-    [id]
+     FROM team WHERE lower(team_id) = lower(?)`,
+    [urlKey]
   );
   if (!profile) return null;
+  const id = profile.team_id; // the real id, whatever capitals it has
 
   const members = await db.getAllAsync<Member>(
     `SELECT t.team_id AS team_id, t.name AS name, t.first_season AS first_season, t.last_season AS last_season,

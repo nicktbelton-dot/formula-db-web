@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import Link from '@/components/AppLink';
 import { useState } from 'react';
 import type { SeasonPageData } from '@/lib/seasonData';
@@ -38,12 +39,12 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
           <span className="lbl" style={{ color: '#FFD6DE' }}>{champion ? "Drivers' champion" : 'Championship in progress'}</span>
           {champion ? (
             <>
-              <p className="cond" style={{ fontSize: 38, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${champion.driver_id}`}>{champion.name}</Link></p>
+              <p className="cond" style={{ fontSize: 38, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${urlId(champion.driver_id)}`}>{champion.name}</Link></p>
               <p className="sub" style={{ fontSize: 16 }}>{[champion.team, champion.points !== null ? `${fmtNum(champion.points)} points` : null].filter(Boolean).join(' · ')}</p>
             </>
           ) : leader ? (
             <>
-              <p className="cond" style={{ fontSize: 38, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${leader.driver_id}`}>{leader.name}</Link></p>
+              <p className="cond" style={{ fontSize: 38, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${urlId(leader.driver_id)}`}>{leader.name}</Link></p>
               <p className="sub" style={{ fontSize: 16 }}>Leads with {fmtNum(leader.points)} points</p>
             </>
           ) : (
@@ -63,7 +64,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
         </div>
       </section>
 
-      <section className="split" style={{ gridTemplateColumns: 'minmax(0, 1fr) 340px', marginTop: 32 }}>
+      <section className="split aside-340" style={{ marginTop: 32 }}>
         <div>
           <div className="between" style={{ marginBottom: 14, flexWrap: 'wrap' }}>
             <div className="seg full" role="group" aria-label="Season views">
@@ -83,8 +84,8 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
                       <td className="r num muted">{r.round}</td>
                       <td>{r.has_results ? <Link className="link" href={`/races/${r.slug}`}>{r.name}</Link> : <span className="nm">{r.name}</span>}</td>
                       <td className="num muted">{shortDate(r.race_date)}</td>
-                      <td className="nm">{r.winner_id ? <Link href={`/drivers/${r.winner_id}`}>{r.winner}</Link> : '–'}</td>
-                      <td>{r.winner_team_id ? <Link href={`/teams/${r.winner_team_id}`}>{r.winner_team}</Link> : r.winner_team ?? ''}</td>
+                      <td className="nm">{r.winner_id ? <Link href={`/drivers/${urlId(r.winner_id)}`}>{r.winner}</Link> : '–'}</td>
+                      <td>{r.winner_team_id ? <Link href={`/teams/${urlId(r.winner_team_id)}`}>{r.winner_team}</Link> : r.winner_team ?? ''}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -103,7 +104,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
                   {drivers.map((d) => (
                     <tr key={d.driver_id}>
                       <td className="r num muted">{d.pos ?? '–'}</td>
-                      <td className="nm"><Link href={`/drivers/${d.driver_id}`}>{d.name}</Link></td>
+                      <td className="nm"><Link href={`/drivers/${urlId(d.driver_id)}`}>{d.name}</Link></td>
                       <td>{d.teams}</td>
                       <td className="r num">{d.wins}</td>
                       <td className="r num nm">{fmtNum(d.points)}</td>
@@ -125,7 +126,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
                     {teams.map((t) => (
                       <tr key={t.team_id}>
                         <td className="r num muted">{t.pos ?? '–'}</td>
-                        <td className="nm"><Link href={`/teams/${t.team_id}`}>{t.name}</Link></td>
+                        <td className="nm"><Link href={`/teams/${urlId(t.team_id)}`}>{t.name}</Link></td>
                         <td className="r num">{t.wins}</td>
                         <td className="r num nm">{fmtNum(t.points)}</td>
                       </tr>
@@ -144,7 +145,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
               {drivers.slice(0, 3).map((d) => (
                 <div key={d.driver_id} className="item" style={{ background: 'transparent', padding: '8px 0' }}>
                   <span className="cond" style={{ fontSize: 22, fontWeight: 700, width: 28, color: 'var(--accent)' }}>{d.pos ?? '–'}</span>
-                  <b><Link href={`/drivers/${d.driver_id}`}>{d.name}</Link></b>
+                  <b><Link href={`/drivers/${urlId(d.driver_id)}`}>{d.name}</Link></b>
                   <span className="end num">{fmtNum(d.points)}</span>
                 </div>
               ))}
@@ -158,7 +159,7 @@ export default function SeasonView({ data }: { data: SeasonPageData }) {
                 {teams.slice(0, 3).map((t) => (
                   <div key={t.team_id} className="item" style={{ background: 'transparent', padding: '8px 0' }}>
                     <span className="cond" style={{ fontSize: 22, fontWeight: 700, width: 28, color: 'var(--accent)' }}>{t.pos ?? '–'}</span>
-                    <b><Link href={`/teams/${t.team_id}`}>{t.name}</Link></b>
+                    <b><Link href={`/teams/${urlId(t.team_id)}`}>{t.name}</Link></b>
                     <span className="end num">{fmtNum(t.points)}</span>
                   </div>
                 ))}

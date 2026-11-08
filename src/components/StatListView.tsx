@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import { useEffect, useMemo, useState } from 'react';
 import Link from '@/components/AppLink';
 import { useDbState } from '@/components/DbProvider';
@@ -58,7 +59,7 @@ export default function StatListView() {
     );
   }
 
-  const back = params.entity === 'driver' ? { label: 'Drivers', href: '/drivers', page: `/drivers/${params.id}` } : { label: 'Teams', href: '/teams', page: `/teams/${params.id}` };
+  const back = params.entity === 'driver' ? { label: 'Drivers', href: '/drivers', page: `/drivers/${urlId(params.id)}` } : { label: 'Teams', href: '/teams', page: `/teams/${urlId(params.id)}` };
   const label = STAT_LABELS[params.stat] ?? params.stat;
 
   return (

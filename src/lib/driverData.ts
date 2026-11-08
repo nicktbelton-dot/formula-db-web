@@ -1,4 +1,5 @@
 import { buildTimeline, SeasonRow, Timeline } from '@/core/timelineData';
+import { uniqueLowerIds } from './ids';
 import { getServerDb } from './serverDb';
 
 // Everything a driver's page shows, gathered at build time (the same queries the phone app runs).
@@ -49,21 +50,22 @@ export type DriverPageData = {
 
 export async function allDriverIds(): Promise<string[]> {
   const db = await getServerDb();
-  return (await db.getAllAsync<{ driver_id: string }>('SELECT driver_id FROM driver ORDER BY driver_id')).map((r) => r.driver_id);
+  return uniqueLowerIds((await db.getAllAsync<{ driver_id: string }>('SELECT driver_id FROM driver ORDER BY driver_id')).map((r) => r.driver_id), 'driver');
 }
 
 const SAME_TEAM = `b.race_id = a.race_id AND b.team_id = a.team_id AND b.driver_id <> a.driver_id`;
 
-export async function loadDriver(id: string): Promise<DriverPageData | null> {
+export async function loadDriver(urlKey: string): Promise<DriverPageData | null> {
   const db = await getServerDb();
   const profile = await db.getFirstAsync<Profile>(
     `SELECT driver_id, given_name || ' ' || family_name AS name, given_name, family_name, nationality, date_of_birth,
             bio, bio_source_url, bio_licence, career_starts, career_wins, career_poles, career_podiums,
             career_fastest_laps, career_points, championships, first_season, last_season
-     FROM driver WHERE driver_id = ?`,
-    [id]
+     FROM driver WHERE lower(driver_id) = lower(?)`,
+    [urlKey]
   );
   if (!profile) return null;
+  const id = profile.driver_id; // the real id, whatever capitals it has
 
   const stints = await db.getAllAsync<Stint>(
     `SELECT ds.team_id AS team_id, t.name AS team, MIN(ds.season_year) AS from_year,

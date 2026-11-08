@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import Link from '@/components/AppLink';
 import { useEffect, useState } from 'react';
 import { useDbState } from '@/components/DbProvider';
@@ -109,17 +110,17 @@ export default function Home() {
       if (d.length) {
         const rows = await db.getAllAsync<{ id: string; name: string; wins: number }>(
           `SELECT driver_id AS id, given_name || ' ' || family_name AS name, career_wins AS wins FROM driver WHERE driver_id IN (${marks(d.length)}) ORDER BY family_name`, d);
-        rows.forEach((r) => lines.push({ kind: 'Driver', id: r.id, name: r.name, stat: `${r.wins} wins`, href: `/drivers/${r.id}` }));
+        rows.forEach((r) => lines.push({ kind: 'Driver', id: r.id, name: r.name, stat: `${r.wins} wins`, href: `/drivers/${urlId(r.id)}` }));
       }
       if (t.length) {
         const rows = await db.getAllAsync<{ id: string; name: string; wins: number }>(
           `SELECT team_id AS id, name, total_wins AS wins FROM team WHERE team_id IN (${marks(t.length)}) ORDER BY name`, t);
-        rows.forEach((r) => lines.push({ kind: 'Team', id: r.id, name: r.name, stat: `${r.wins} wins`, href: `/teams/${r.id}` }));
+        rows.forEach((r) => lines.push({ kind: 'Team', id: r.id, name: r.name, stat: `${r.wins} wins`, href: `/teams/${urlId(r.id)}` }));
       }
       if (c.length) {
         const rows = await db.getAllAsync<{ id: string; name: string; races: number }>(
           `SELECT circuit_id AS id, name, total_races AS races FROM circuit WHERE circuit_id IN (${marks(c.length)}) ORDER BY name`, c);
-        rows.forEach((r) => lines.push({ kind: 'Circuit', id: r.id, name: commonName(r.id, r.name), stat: `${r.races} races`, href: `/circuits/${r.id}` }));
+        rows.forEach((r) => lines.push({ kind: 'Circuit', id: r.id, name: commonName(r.id, r.name), stat: `${r.races} races`, href: `/circuits/${urlId(r.id)}` }));
       }
       setFavLines(lines);
     })().catch((e) => console.error(e));
@@ -133,7 +134,7 @@ export default function Home() {
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginTop: 32 }}>
         <div className="grad" style={{ padding: 32, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 280, gridColumn: 'span 1' }}>
           <span className="lbl" style={{ color: '#FFD6DE' }}>{champ ? `${champ.year} World Champion` : 'World Champion'}</span>
-          <h1 className="hero-name" style={{ fontSize: 'clamp(38px, 6vw, 64px)' }}>{champ ? <Link href={`/drivers/${champ.id}`}>{champ.name}</Link> : dash}</h1>
+          <h1 className="hero-name" style={{ fontSize: 'clamp(38px, 6vw, 64px)' }}>{champ ? <Link href={`/drivers/${urlId(champ.id)}`}>{champ.name}</Link> : dash}</h1>
           <p className="sub" style={{ fontSize: 17, maxWidth: '46ch' }}>
             {champ ? `${champ.team ?? 'Champion'}. ${champ.left > 0 ? `The drivers' title was decided with ${champ.left} ${champ.left === 1 ? 'race' : 'races'} still to run.` : ''}` : ''}
           </p>
@@ -207,7 +208,7 @@ export default function Home() {
           <h2 className="h-sec">Most wins</h2>
           <div className="stack">
             {top.map((p) => (
-              <Link key={p.driver_id} href={`/drivers/${p.driver_id}`} className="item"><b>{p.name}</b><span className="end num">{p.wins}</span></Link>
+              <Link key={p.driver_id} href={`/drivers/${urlId(p.driver_id)}`} className="item"><b>{p.name}</b><span className="end num">{p.wins}</span></Link>
             ))}
           </div>
         </div>

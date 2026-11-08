@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import Link from '@/components/AppLink';
 import { useState } from 'react';
 import RaceWeather from '@/components/RaceWeather';
@@ -30,7 +31,7 @@ export default function RaceView({ data }: { data: RacePageData }) {
           <span className="lbl">Winner</span>
           {d.winner ? (
             <>
-              <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${d.winner.driver_id}`}>{d.winner.name}</Link></p>
+              <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${urlId(d.winner.driver_id)}`}>{d.winner.name}</Link></p>
               <p className="sub">{d.winner.team}</p>
             </>
           ) : (
@@ -41,7 +42,7 @@ export default function RaceView({ data }: { data: RacePageData }) {
           <span className="lbl">Pole position</span>
           {d.pole ? (
             <>
-              <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${d.pole.driver_id}`}>{d.pole.name}</Link></p>
+              <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}><Link href={`/drivers/${urlId(d.pole.driver_id)}`}>{d.pole.name}</Link></p>
               <p className="sub">{d.pole.team}</p>
             </>
           ) : (
@@ -50,12 +51,12 @@ export default function RaceView({ data }: { data: RacePageData }) {
         </div>
         <div className="grad">
           <span className="lbl" style={{ color: '#FFD6DE' }}>Circuit</span>
-          <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>{d.circuit_id ? <Link href={`/circuits/${d.circuit_id}`}>{d.circuit ?? 'Unknown'}</Link> : d.circuit ?? 'Unknown'}</p>
+          <p className="cond" style={{ fontSize: 30, fontWeight: 700, marginTop: 6 }}>{d.circuit_id ? <Link href={`/circuits/${urlId(d.circuit_id)}`}>{d.circuit ?? 'Unknown'}</Link> : d.circuit ?? 'Unknown'}</p>
           <p className="sub">{[d.locality, d.country].filter(Boolean).join(', ')}</p>
         </div>
       </section>
 
-      <section className="split" style={{ gridTemplateColumns: d.layouts.length > 0 ? 'minmax(0, 1fr) 340px' : 'minmax(0, 1fr)', marginTop: 32 }}>
+      <section className={`split${d.layouts.length > 0 ? ' aside-340' : ''}`} style={{ marginTop: 32 }}>
       <div>
       <div className="between" style={{ margin: '0 0 14px', flexWrap: 'wrap' }}>
         {d.quali.length > 0 ? (
@@ -87,8 +88,8 @@ export default function RaceView({ data }: { data: RacePageData }) {
                   return (
                     <tr key={r.result_id} className={numeric && Number(r.position_text) <= 3 ? 'pod' : ''}>
                       <td className="pos" style={{ opacity: numeric ? 1 : 0.55 }}>{r.position_text ?? '–'}</td>
-                      <td className="nm"><Link href={`/drivers/${r.driver_id}`}>{r.driver}</Link></td>
-                      <td><Link href={`/teams/${r.team_id}`}>{r.team}</Link></td>
+                      <td className="nm"><Link href={`/drivers/${urlId(r.driver_id)}`}>{r.driver}</Link></td>
+                      <td><Link href={`/teams/${urlId(r.team_id)}`}>{r.team}</Link></td>
                       <td className="r num">{r.grid ? r.grid : r.grid === 0 ? 'Pit' : '–'}</td>
                       <td className="r num">{r.laps ?? '–'}</td>
                       <td>{result}{r.fastest_lap_rank === 1 ? <span className="tag" style={{ marginLeft: result ? 8 : 0 }}>Fastest lap</span> : null}</td>
@@ -110,8 +111,8 @@ export default function RaceView({ data }: { data: RacePageData }) {
               {d.quali.map((q) => (
                 <tr key={q.qualifying_id}>
                   <td className="pos">{q.position ?? '–'}</td>
-                  <td className="nm"><Link href={`/drivers/${q.driver_id}`}>{q.driver}</Link></td>
-                  <td><Link href={`/teams/${q.team_id}`}>{q.team}</Link></td>
+                  <td className="nm"><Link href={`/drivers/${urlId(q.driver_id)}`}>{q.driver}</Link></td>
+                  <td><Link href={`/teams/${urlId(q.team_id)}`}>{q.team}</Link></td>
                   <td className="num">{q.q1_time ?? ''}</td>
                   <td className="num">{q.q2_time ?? ''}</td>
                   <td className="num">{q.q3_time ?? ''}</td>
@@ -126,7 +127,7 @@ export default function RaceView({ data }: { data: RacePageData }) {
       {d.layouts.length > 0 ? (
         <aside className="col">
           <TrackCard layouts={d.layouts} initial={d.layout_index} year={d.year} />
-          {d.circuit_id ? <Link className="link" href={`/circuits/${d.circuit_id}`}>All races and layouts at {d.circuit} ›</Link> : null}
+          {d.circuit_id ? <Link className="link" href={`/circuits/${urlId(d.circuit_id)}`}>All races and layouts at {d.circuit} ›</Link> : null}
         </aside>
       ) : null}
       </section>

@@ -4,7 +4,7 @@ import { geoGraticule10, geoOrthographic, geoPath } from 'd3-geo';
 import { feature } from 'topojson-client';
 import world from 'world-atlas/land-110m.json';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GlobePin, hitTest, placeLabels, projectPins } from '@/lib/globeMath';
+import { GlobePin, hitTest, labelBox, Label, placeLabels, projectPins } from '@/lib/globeMath';
 
 // World outline (Natural Earth, 110m), drawn as SVG. Drag to turn, pinch or Ctrl+scroll to zoom, tap a pin.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,6 +17,7 @@ type Cam = { lon: number; lat: number; zoom: number };
 const START: Cam = { lon: 10, lat: 35, zoom: 1 };
 const MAX_ZOOM = 9;
 const TAP_RADIUS = 26;
+const TAP_RADIUS_PHONE = 34; // pins are tapped with a finger, so the target is bigger on a small screen
 const MAX_SIZE = 640;
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -26,9 +27,9 @@ function makeProjection(cam: Cam, size: number) {
   return geoOrthographic().scale(size * 0.46 * cam.zoom).translate([size / 2, size / 2]).clipAngle(90).rotate([-cam.lon, -cam.lat]);
 }
 
-type Props = { pins: GlobePin[]; selectedId: string | null; onSelect: (id: string | null) => void };
+type Props = { pins: GlobePin[]; selectedId: string | null; onSelect: (id: string | null) => void; onOpen?: (id: string) => void };
 
-export default function Globe({ pins, selectedId, onSelect }: Props) {
+export default function Globe({ pins, selectedId, onSelect, onOpen }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(0);
@@ -43,9 +44,14 @@ export default function Globe({ pins, selectedId, onSelect }: Props) {
   pinsRef.current = pins;
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
+  const selectedRef = useRef(selectedId);
+  selectedRef.current = selectedId;
+  const openRef = useRef(onOpen);
+  openRef.current = onOpen;
+  const labelsRef = useRef<Label[]>([]);
   const raf = useRef<number | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
-  const g = useRef({ lastX: 0, lastY: 0, moved: 0, pinchD0: 0, zoom0: 1, pinched: false });
+  const g = useRef({ lastX: 0, lastY: 0, moved: 0, pinchD0: 0, zoom0: 1, pinched: false, touch: false });
 
   // the globe is as wide as its column, up to a limit, and always square
   useEffect(() => {
@@ -87,26 +93,43 @@ export default function Globe({ pins, selectedId, onSelect }: Props) {
   const handleTap = (x: number, y: number) => {
     const s = sizeRef.current;
     if (s <= 0) return;
+    // a tap on a circuit's name opens it
+    for (const l of labelsRef.current) {
+      const b = labelBox(l);
+      if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 && openRef.current) {
+        openRef.current(l.id);
+        return;
+      }
+    }
     const proj = makeProjection(camRef.current, s);
-    const hits = hitTest(projectPins(pinsRef.current, proj, s), x, y, TAP_RADIUS);
+    const hits = hitTest(projectPins(pinsRef.current, proj, s), x, y, s < 480 ? TAP_RADIUS_PHONE : TAP_RADIUS);
     if (hits.length === 0) {
       selectRef.current(null);
       return;
     }
     const cur = camRef.current;
-    // several pins under the finger (for example in Europe): zoom in there instead of guessing
-    if (hits.length > 1 && cur.zoom < MAX_ZOOM - 0.5) {
+    // two pins almost exactly on top of each other (for example in Europe): zoom in there instead of guessing.
+    // Otherwise the nearest pin to the tap is chosen.
+    const near = (h: { x: number; y: number }) => Math.hypot(h.x - x, h.y - y);
+    const ambiguous = hits.length > 1 && near(hits[1]) - near(hits[0]) < 9;
+    if (ambiguous && cur.zoom < MAX_ZOOM - 0.5) {
       const lon = hits.reduce((n, h) => n + h.pin.lon, 0) / hits.length;
       const lat = hits.reduce((n, h) => n + h.pin.lat, 0) / hits.length;
       animateTo({ lon, lat, zoom: clamp(cur.zoom * 2.6, 1, MAX_ZOOM) });
+      return;
+    }
+    // the first tap selects a pin; tapping the selected pin again opens its circuit
+    if (hits[0].pin.id === selectedRef.current && openRef.current) {
+      openRef.current(hits[0].pin.id);
       return;
     }
     selectRef.current(hits[0].pin.id);
     animateTo({ lon: hits[0].pin.lon, lat: hits[0].pin.lat, zoom: cur.zoom });
   };
 
-  const onPointerDown = (e: { pointerId: number; clientX: number; clientY: number; currentTarget: HTMLElement }) => {
+  const onPointerDown = (e: { pointerId: number; clientX: number; clientY: number; pointerType?: string; currentTarget: HTMLElement }) => {
     stopAnim();
+    g.current.touch = e.pointerType === 'touch' || e.pointerType === 'pen';
     e.currentTarget.setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const st = g.current;
@@ -154,7 +177,8 @@ export default function Globe({ pins, selectedId, onSelect }: Props) {
       st.lastY = rest.y;
       return;
     }
-    if (pointers.current.size === 0 && !st.pinched && st.moved < 14) {
+    // a finger always wobbles a little, so a touch may move further and still count as a tap
+    if (pointers.current.size === 0 && !st.pinched && st.moved < (st.touch ? 28 : 14)) {
       const rect = boxRef.current?.getBoundingClientRect();
       if (rect) handleTap(e.clientX - rect.left, e.clientY - rect.top);
     }
@@ -185,6 +209,7 @@ export default function Globe({ pins, selectedId, onSelect }: Props) {
   }, [proj]);
   const points = useMemo(() => projectPins(pins, proj, size), [pins, proj, size]);
   const labels = useMemo(() => placeLabels(points, selectedId, cam.zoom >= 2.2, size), [points, selectedId, cam.zoom, size]);
+  labelsRef.current = labels;
   const drawn = points.filter((p) => p.visible).sort((a, b) => Number(a.pin.current) - Number(b.pin.current));
 
   const zoomBy = (f: number) => animateTo({ ...camRef.current, zoom: clamp(camRef.current.zoom * f, 1, MAX_ZOOM) });
@@ -213,7 +238,7 @@ export default function Globe({ pins, selectedId, onSelect }: Props) {
                   key={p.pin.id}
                   cx={p.x}
                   cy={p.y}
-                  r={selected ? 8 : p.pin.current ? 5.5 : 4}
+                  r={size < 480 ? (selected ? 11 : p.pin.current ? 8 : 6) : selected ? 8 : p.pin.current ? 5.5 : 4}
                   fill={selected ? 'var(--accent)' : p.pin.current ? 'var(--link)' : 'var(--muted)'}
                   stroke={selected ? 'var(--link)' : 'var(--bg)'}
                   strokeWidth={selected ? 3 : 1.5}
@@ -239,7 +264,7 @@ export default function Globe({ pins, selectedId, onSelect }: Props) {
         <button className="ib" onClick={() => zoomBy(1.8)} aria-label="Zoom in">+</button>
         <button className="btn" onClick={() => animateTo(START)}>Reset</button>
       </div>
-      <p className="muted globe-hint">Drag to turn the globe. Scroll or pinch to zoom. Tap a pin for the circuit, or a cluster to zoom in.</p>
+      <p className="muted globe-hint">Drag to turn the globe. Scroll or pinch to zoom. Tap a pin to select it; tap it again, or its name, to open the circuit. Tap a cluster to zoom in.</p>
     </div>
   );
 }

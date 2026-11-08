@@ -1,3 +1,4 @@
+import { urlId } from '@/lib/ids';
 import type { AskOpen } from '@/core/askEngine';
 import { slugify } from './slug';
 
@@ -5,9 +6,9 @@ import { slugify } from './slug';
 export function hrefForOpen(o: AskOpen | undefined): string | null {
   if (!o) return null;
   switch (o.kind) {
-    case 'driver': return `/drivers/${o.id}`;
-    case 'team': return `/teams/${o.id}`;
-    case 'circuit': return `/circuits/${o.id}`;
+    case 'driver': return `/drivers/${urlId(o.id)}`;
+    case 'team': return `/teams/${urlId(o.id)}`;
+    case 'circuit': return `/circuits/${urlId(o.id)}`;
     case 'season': return `/seasons/${o.year}`;
     case 'race': return `/races/${slugify(o.name)}`;
     case 'record': return `/records/${o.key}`;

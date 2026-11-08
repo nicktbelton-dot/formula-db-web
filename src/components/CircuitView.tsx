@@ -1,8 +1,10 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import Link from '@/components/AppLink';
 import { useState } from 'react';
 import Tile from '@/components/Tile';
+import StartPanel from '@/components/StartPanel';
 import TrackCard from '@/components/TrackCard';
 import TypicalWeather from '@/components/TypicalWeather';
 import type { CircuitPageData } from '@/lib/circuitData';
@@ -14,7 +16,7 @@ const INITIAL = 15;
 const span = (a: number | null, b: number | null) => (a === null ? '' : a === b ? String(a) : `${a} to ${b}`);
 
 export default function CircuitView({ data }: { data: CircuitPageData }) {
-  const { profile: p, layouts, races, top } = data;
+  const { profile: p, layouts, races, top, starts, furthestSlug } = data;
   const { favs, toggle } = useFavourites();
   const [all, setAll] = useState(false);
   const [more, setMore] = useState(false);
@@ -58,13 +60,15 @@ export default function CircuitView({ data }: { data: CircuitPageData }) {
         {newest?.length_km ? <Tile label="Current length" value={`${newest.length_km.toFixed(3)} km`} /> : null}
       </section>
 
-      <section className="split" style={{ gridTemplateColumns: showAside ? 'minmax(0, 1fr) 340px' : 'minmax(0, 1fr)', marginTop: 28 }}>
+      <section className={`split${showAside ? ' aside-340' : ''}`} style={{ marginTop: 28 }}>
         <div className="col" style={{ gap: 20 }}>
           {layouts.length > 0 ? <TrackCard layouts={layouts} initial={layouts.length - 1} /> : null}
 
+          {starts ? <StartPanel starts={starts} furthestSlug={furthestSlug} circuitName={p.name} /> : null}
+
           <div>
             <h2 style={{ fontSize: 26, marginBottom: 12 }}>Winners and pole sitters</h2>
-            {top ? <p className="muted" style={{ marginBottom: 12 }}>Most wins here: <Link className="link" href={`/drivers/${top.id}`}>{top.name}</Link> ({top.n})</p> : null}
+            {top ? <p className="muted" style={{ marginBottom: 12 }}>Most wins here: <Link className="link" href={`/drivers/${urlId(top.id)}`}>{top.name}</Link> ({top.n})</p> : null}
             <div className="tbl-wrap">
               <table className="tbl">
                 <thead>
@@ -75,9 +79,9 @@ export default function CircuitView({ data }: { data: CircuitPageData }) {
                     <tr key={r.race_id}>
                       <td className="num nm">{r.season_year}</td>
                       <td>{r.has_results ? <Link className="link" href={`/races/${r.slug}`}>{r.race_name}</Link> : <span>{r.race_name}</span>}{!r.has_results && r.race_date ? <span className="muted"> · {shortDate(r.race_date)}</span> : null}</td>
-                      <td className="nm">{r.winner_id ? <Link href={`/drivers/${r.winner_id}`}>{r.winner_name}</Link> : '–'}</td>
-                      <td>{r.winner_team_id ? <Link href={`/teams/${r.winner_team_id}`}>{r.winner_team}</Link> : ''}</td>
-                      <td>{r.pole_id ? <Link href={`/drivers/${r.pole_id}`}>{r.pole_name}</Link> : '–'}</td>
+                      <td className="nm">{r.winner_id ? <Link href={`/drivers/${urlId(r.winner_id)}`}>{r.winner_name}</Link> : '–'}</td>
+                      <td>{r.winner_team_id ? <Link href={`/teams/${urlId(r.winner_team_id)}`}>{r.winner_team}</Link> : ''}</td>
+                      <td>{r.pole_id ? <Link href={`/drivers/${urlId(r.pole_id)}`}>{r.pole_name}</Link> : '–'}</td>
                       {layouts.length > 1 ? <td className="r num muted">{layoutLabel(layouts[layoutFor(layouts, r.season_year)])}</td> : null}
                     </tr>
                   ))}

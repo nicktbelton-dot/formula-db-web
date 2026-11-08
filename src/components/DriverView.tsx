@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import Link from '@/components/AppLink';
 import { useState } from 'react';
 import type { Timeline } from '@/core/timelineData';
@@ -207,7 +208,7 @@ export default function DriverView({ data }: { data: DriverPageData }) {
               <div className="stack" style={{ marginTop: 10, gap: 8 }}>
                 {[...stints].reverse().map((s) => (
                   <div key={s.team_id} className="between">
-                    <b><Link href={`/teams/${s.team_id}`}>{s.team}</Link></b>
+                    <b><Link href={`/teams/${urlId(s.team_id)}`}>{s.team}</Link></b>
                     <span className="sub num">{s.from_year === s.to_year ? s.from_year : `${s.from_year} to ${s.to_year}`}</span>
                   </div>
                 ))}

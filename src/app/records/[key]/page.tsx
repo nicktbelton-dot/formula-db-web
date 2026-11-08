@@ -1,3 +1,4 @@
+import { pageMeta } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from '@/components/AppLink';
@@ -17,10 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await loadRecord(key);
   if (!data) return { title: 'Record not found · Formula DB' };
   const first = data.rows[0];
-  return {
-    title: `${data.title} · Formula DB`,
-    description: `${data.blurb}${first ? ` The record: ${first.title}${first.right ? `, ${first.right}` : ''}.` : ''}`,
-  };
+  return pageMeta({ title: `${data.title}`, description: `${data.blurb}${first ? ` The record: ${first.title}${first.right ? `, ${first.right}` : ''}.` : ''}`, path: `/records/${data.key}` });
 }
 
 export default async function RecordPage({ params }: Props) {

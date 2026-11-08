@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import Link from '@/components/AppLink';
 import { useEffect, useRef, useState } from 'react';
 import { REGULATION_NOTE, regulationLines } from '@/core/eraSpecs';
@@ -76,6 +77,7 @@ function CarCard({ car }: { car: Car }) {
 
       <div className="car-photo">
         <span className="car-name">{car.model ?? title}</span>
+        {!car.img ? <span className="car-missing">Image currently not available</span> : null}
         {car.img && !wanted ? <button className="car-tap" onClick={() => setTapped(true)}>Loading as you scroll… tap to load now</button> : null}
         {car.img && wanted && !failed ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -100,7 +102,9 @@ function CarCard({ car }: { car: Car }) {
           Photo: {car.img_author ?? 'Unknown'} · {car.img_licence ?? 'open licence'} ·{' '}
           {car.img_page ? <a href={car.img_page} rel="noopener">Wikimedia Commons</a> : 'Wikimedia Commons'}
         </p>
-      ) : null}
+      ) : (
+        <p className="car-credit">No free photo found for this model yet.</p>
+      )}
 
       <div className="g2" style={{ marginTop: 14, gap: 18 }}>
         <div><span className="lbl" style={{ color: 'var(--oncardmuted)' }}>Engine</span><p>{engineLine(car)}</p></div>
@@ -193,7 +197,7 @@ export default function TeamView({ data }: { data: TeamPageData }) {
         <tbody>
           {list.map((d) => (
             <tr key={d.driver_id}>
-              <td className="nm"><Link href={`/drivers/${d.driver_id}`}>{d.name}</Link></td>
+              <td className="nm"><Link href={`/drivers/${urlId(d.driver_id)}`}>{d.name}</Link></td>
               <td className="num">{span(d.from_year, d.to_year)}</td>
               <td className="r num">{d.races}</td>
               <td className="r num nm">{d.wins}</td>
@@ -242,7 +246,7 @@ export default function TeamView({ data }: { data: TeamPageData }) {
         {tab === 'cars' ? <span className="muted" style={{ fontSize: 13 }}>One card per season, newest first. Photos load as you scroll.</span> : null}
       </div>
 
-      <section className="split" style={{ gridTemplateColumns: lineage ? 'minmax(0, 1fr) 320px' : 'minmax(0, 1fr)' }}>
+      <section className={`split${lineage ? ' aside-320' : ''}`}>
         <div className="col" style={{ gap: 20 }}>
           <div hidden={tab !== 'overview'}>
             {bio ? (
@@ -290,7 +294,7 @@ export default function TeamView({ data }: { data: TeamPageData }) {
                       <b style={{ fontSize: 15 }}>{m.name}</b><span className="end sub num">{span(m.first_season, m.last_season)}</span>
                     </div>
                   ) : (
-                    <Link key={m.team_id} href={`/teams/${m.team_id}`} className="item" style={{ background: 'transparent', padding: '10px 12px' }}>
+                    <Link key={m.team_id} href={`/teams/${urlId(m.team_id)}`} className="item" style={{ background: 'transparent', padding: '10px 12px' }}>
                       <b style={{ fontSize: 15 }}>{m.name}</b><span className="end sub num">{span(m.first_season, m.last_season)}</span>
                     </Link>
                   )

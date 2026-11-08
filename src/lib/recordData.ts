@@ -1,3 +1,4 @@
+import { urlId } from '@/lib/ids';
 import { Group, Open, RecordRow, recordByKey, RECORDS } from '@/core/records';
 import { raceSlugById } from './seasonData';
 import { getServerDb } from './serverDb';
@@ -21,9 +22,9 @@ export const allRecordKeys = (): string[] => RECORDS.map((r) => r.key);
 function hrefFor(open: Open | undefined, slugs: Map<number, string>): string | null {
   if (!open) return null;
   switch (open.kind) {
-    case 'driver': return `/drivers/${open.id}`;
-    case 'team': return `/teams/${open.id}`;
-    case 'circuit': return `/circuits/${open.id}`;
+    case 'driver': return `/drivers/${urlId(open.id)}`;
+    case 'team': return `/teams/${urlId(open.id)}`;
+    case 'circuit': return `/circuits/${urlId(open.id)}`;
     case 'season': return `/seasons/${open.year}`;
     case 'race': {
       const slug = slugs.get(open.id);

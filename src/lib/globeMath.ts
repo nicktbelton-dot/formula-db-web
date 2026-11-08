@@ -30,7 +30,14 @@ export function hitTest(points: ProjectedPin[], x: number, y: number, radius: nu
     .map((h) => h.p);
 }
 
-export type Label = { x: number; y: number; text: string; anchor: 'start' | 'end' };
+export type Label = { id: string; x: number; y: number; text: string; anchor: 'start' | 'end' };
+
+// The pill drawn behind a label (the same sums the globe uses to draw it), so a tap on a name can be recognised.
+export function labelBox(l: Label): { x0: number; y0: number; x1: number; y1: number } {
+  const textWidth = l.text.length * 6.2;
+  const x0 = l.anchor === 'start' ? l.x - 5 : l.x - textWidth - 5;
+  return { x0, y0: l.y - 12, x1: x0 + textWidth + 10, y1: l.y + 5 };
+}
 
 // Greedy label placement: the selected pin first, then current circuits, then the rest.
 // A label is skipped if it would overlap one already placed, which keeps crowded areas readable.
@@ -54,7 +61,7 @@ export function placeLabels(
     const clash = placed.some((b) => box.x0 < b.x1 && box.x1 > b.x0 && box.y0 < b.y1 && box.y1 > b.y0);
     if (clash && p.pin.id !== selectedId) continue;
     placed.push(box);
-    out.push({ x: goLeft ? p.x - 10 : p.x + 10, y: p.y + 4, text: p.pin.name, anchor: goLeft ? 'end' : 'start' });
+    out.push({ id: p.pin.id, x: goLeft ? p.x - 10 : p.x + 10, y: p.y + 4, text: p.pin.name, anchor: goLeft ? 'end' : 'start' });
   }
   return out;
 }

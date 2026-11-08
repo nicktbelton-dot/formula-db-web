@@ -1,4 +1,5 @@
-﻿export const metadata = { title: 'Contact · Formula DB' };
+import { pageMeta } from '@/lib/seo';
+export const metadata = pageMeta({ title: 'Contact us', description: 'Report a mistake on Formula DB or send a question.', path: '/contact' });
 
 export default function Contact() {
   return (

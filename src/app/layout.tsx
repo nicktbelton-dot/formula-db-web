@@ -5,13 +5,23 @@ import './globals.css';
 import { DbProvider } from '@/components/DbProvider';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import { ANALYTICS_TOKEN, LAUNCHED, SITE_NAME, SITE_URL } from '@/lib/siteConfig';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const barlow = Barlow_Semi_Condensed({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-barlow', display: 'swap' });
 
+const DESCRIPTION = 'A free, unofficial Formula One encyclopedia: every driver, team, circuit and season since 1950.';
+
 export const metadata: Metadata = {
-  title: 'Formula DB',
-  description: 'A free, unofficial Formula One encyclopedia: every driver, team, circuit and season since 1950.',
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: DESCRIPTION,
+  applicationName: SITE_NAME,
+  alternates: { canonical: '/' },
+  // until LAUNCHED is true, every page asks search engines to stay away
+  robots: LAUNCHED ? { index: true, follow: true } : { index: false, follow: false },
+  openGraph: { title: SITE_NAME, description: DESCRIPTION, url: '/', siteName: SITE_NAME, type: 'website', locale: 'en_GB' },
+  twitter: { card: 'summary_large_image', title: SITE_NAME, description: DESCRIPTION },
 };
 
 // The site is dark unless a light choice was saved; this applies it before the page paints, so there is no flash
@@ -24,6 +34,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        {/* An address typed with capital letters goes to its lower-case form before anything else loads. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var p=location.pathname,l=p.toLowerCase();if(p!==l&&p.indexOf('/_next/')!==0){location.replace(l+location.search+location.hash);}})();",
+          }}
+        />
         <div className="watermark" aria-hidden="true">
           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" focusable="false">
             <defs>
@@ -32,9 +49,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <stop offset="1" stopColor="#7B4FBF" />
               </linearGradient>
             </defs>
-            <rect x="14" y="30" width="16" height="40" rx="5" fill="url(#wm)" />
-            <rect x="42" y="18" width="16" height="64" rx="5" fill="url(#wm)" />
-            <rect x="70" y="24" width="16" height="52" rx="5" fill="url(#wm)" />
+            <rect x="27.3" y="14" width="64.8" height="18" rx="9" fill="url(#wm)" />
+            <rect x="7.5" y="41" width="64.8" height="18" rx="9" fill="url(#wm)" />
+            <rect x="27.3" y="68" width="64.8" height="18" rx="9" fill="url(#wm)" />
           </svg>
         </div>
         <DbProvider>
@@ -44,6 +61,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Footer />
           </div>
         </DbProvider>
+        {LAUNCHED && ANALYTICS_TOKEN ? (
+          <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: ANALYTICS_TOKEN })} />
+        ) : null}
       </body>
     </html>
   );

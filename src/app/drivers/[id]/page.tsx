@@ -1,3 +1,5 @@
+import { urlId } from '@/lib/ids';
+import { pageMeta } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import DriverView from '@/components/DriverView';
@@ -18,10 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return { title: 'Driver not found · Formula DB' };
   const p = data.profile;
   const span = p.first_season ? ` (${p.first_season}${p.last_season && p.last_season !== p.first_season ? ` to ${p.last_season}` : ''})` : '';
-  return {
-    title: `${p.name} · Formula DB`,
-    description: `${p.name}${p.nationality ? `, ${p.nationality}` : ''}: ${p.career_wins} wins, ${p.career_poles} poles and ${p.championships} world titles in ${p.career_starts} starts${span}.`,
-  };
+  return pageMeta({ title: `${p.name}`, description: `${p.name}${p.nationality ? `, ${p.nationality}` : ''}: ${p.career_wins} wins, ${p.career_poles} poles and ${p.championships} world titles in ${p.career_starts} starts${span}.`, path: `/drivers/${urlId(p.driver_id)}` });
 }
 
 export default async function DriverPage({ params }: Props) {

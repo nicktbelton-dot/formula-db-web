@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import { useEffect, useState } from 'react';
 import Link from '@/components/AppLink';
 import { useDbState } from '@/components/DbProvider';
@@ -140,7 +141,7 @@ export default function CompareView() {
                     <span className={`cmp-dot ${w}`} aria-hidden="true" />
                     <div>
                       <span className="lbl">Driver {w.toUpperCase()}</span>
-                      <p className="cond" style={{ fontSize: 28, fontWeight: 700 }}><Link href={`/drivers/${d.driver_id}`}>{d.name}</Link></p>
+                      <p className="cond" style={{ fontSize: 28, fontWeight: 700 }}><Link href={`/drivers/${urlId(d.driver_id)}`}>{d.name}</Link></p>
                     </div>
                   </div>
                 ))}

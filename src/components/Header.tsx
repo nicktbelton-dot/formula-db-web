@@ -1,8 +1,10 @@
 'use client';
 
 import Link from '@/components/AppLink';
-import { usePathname, useRouter } from 'next/navigation';
-import { FormEvent, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import LogoMark from '@/components/LogoMark';
+import SearchBox from '@/components/SearchBox';
 
 const ITEMS = [
   { href: '/', label: 'Home' },
@@ -30,27 +32,7 @@ function toggleTheme() {
 
 export default function Header() {
   const pathname = usePathname();
-  const router = useRouter();
-  const input = useRef<HTMLInputElement>(null);
-
-  // Press / to jump to the search box
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
-        e.preventDefault();
-        input.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
-  function submit(e: FormEvent) {
-    e.preventDefault();
-    const q = input.current?.value.trim();
-    if (q) router.push(`/ask?q=${encodeURIComponent(q)}`);
-  }
+  const [mobileSearch, setMobileSearch] = useState(false);
 
   const isOn = (href: string) =>
     href === '/' ? pathname === '/' : href === '/seasons' ? pathname.startsWith('/seasons') || pathname.startsWith('/races') : pathname.startsWith(href);
@@ -71,27 +53,18 @@ export default function Header() {
       <header className="nav">
         <div className="wrap nav-in">
           <Link className="logo" href="/" aria-label="Formula DB home">
-            <span className="logo-tile" aria-hidden="true">
-              <i style={{ height: 14 }} />
-              <i style={{ height: 22 }} />
-              <i style={{ height: 18 }} />
-            </span>
-            <span className="logo-word">
-              <span>FORMULA</span>
-              <b>DB</b>
-            </span>
+            <LogoMark />
           </Link>
           <nav className="menu" aria-label="Main">
             {items}
           </nav>
-          <form className="search" onSubmit={submit} role="search">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <SearchBox id="site-search" />
+          <button className="ib search-toggle" onClick={() => setMobileSearch(!mobileSearch)} aria-label="Search" aria-expanded={mobileSearch}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
               <path d="M20 20l-3.5-3.5" />
             </svg>
-            <input ref={input} type="search" placeholder="Search, or ask a question" aria-label="Search or ask a question" />
-            <kbd>/</kbd>
-          </form>
+          </button>
           <span className="grow" />
           <Link className="ib" href="/favourites" aria-label="My favourites" title="My favourites">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
@@ -106,6 +79,11 @@ export default function Header() {
         </div>
       </header>
       <div className="wrap">
+        {mobileSearch ? (
+          <div className="mobile-search">
+            <SearchBox id="mobile-search" autoFocus onDone={() => setMobileSearch(false)} />
+          </div>
+        ) : null}
         <nav className="pillnav" aria-label="Main">
           {items}
         </nav>

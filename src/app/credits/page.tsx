@@ -1,4 +1,5 @@
-export const metadata = { title: 'Credits · Formula DB' };
+import { pageMeta } from '@/lib/seo';
+export const metadata = pageMeta({ title: 'Credits', description: 'The data, photo and software sources behind Formula DB, with their licences.', path: '/credits' });
 
 export default function Credits() {
   return (

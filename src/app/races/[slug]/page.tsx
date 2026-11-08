@@ -1,3 +1,4 @@
+import { pageMeta } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import RaceView from '@/components/RaceView';
@@ -16,10 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await loadRace(slug);
   if (!data) return { title: 'Race not found · Formula DB' };
   const won = data.winner ? ` Won by ${data.winner.name}${data.winner.team ? ` (${data.winner.team})` : ''}.` : '';
-  return {
-    title: `${data.year} ${data.name} · Formula DB`,
-    description: `Full results${data.quali.length ? ' and qualifying' : ''} for the ${data.year} ${data.name}${data.circuit ? ` at ${data.circuit}` : ''}.${won}`,
-  };
+  return pageMeta({ title: `${data.year} ${data.name}`, description: `Full results${data.quali.length ? ' and qualifying' : ''} for the ${data.year} ${data.name}${data.circuit ? ` at ${data.circuit}` : ''}.${won}`, path: `/races/${data.slug}` });
 }
 
 export default async function RacePage({ params }: Props) {

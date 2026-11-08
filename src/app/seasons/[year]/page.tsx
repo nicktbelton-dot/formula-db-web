@@ -1,3 +1,4 @@
+import { pageMeta } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import SeasonView from '@/components/SeasonView';
@@ -16,10 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await loadSeason(Number(year));
   if (!data) return { title: 'Season not found · Formula DB' };
   const champ = data.champion ? ` ${data.champion.name} won the drivers' title${data.team_champion ? `, ${data.team_champion.name} the constructors'` : ''}.` : '';
-  return {
-    title: `${data.year} Formula One season · Formula DB`,
-    description: `Results, winners and standings for all ${data.races.length} races of the ${data.year} Formula One season.${champ}`,
-  };
+  return pageMeta({ title: `${data.year} Formula One season`, description: `Results, winners and standings for all ${data.races.length} races of the ${data.year} Formula One season.${champ}`, path: `/seasons/${data.year}` });
 }
 
 export default async function SeasonPage({ params }: Props) {

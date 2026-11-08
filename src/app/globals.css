@@ -304,3 +304,59 @@ a.ask-row:hover{background:rgba(255,255,255,.05)}
 
 /* favourite buttons */
 .btn.fav-on,.ib.fav-on{background:linear-gradient(135deg,var(--ga),var(--gb));border-color:transparent;color:#fff}
+
+/* site search box */
+.search-list{position:fixed;z-index:2000;overflow-y:auto;background-color:#1F1630;color:#FFFFFF;border:1px solid var(--accent);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.65);padding:6px 0}
+.sl-group{margin:0;padding:8px 14px 4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.sl-note{margin:0;padding:12px 14px;font-size:14px;color:#C9B8E0}
+.sl-opt{display:flex;flex-direction:column;gap:1px;width:100%;padding:8px 14px;border:0;background:transparent;color:#FFFFFF;text-align:left;cursor:pointer;font:inherit}
+.sl-opt[aria-selected='true']{background-color:#3A2E52}
+.sl-label{font-weight:600}
+.sl-sub{font-size:12px;color:#C9B8E0}
+.sl-ask{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:8px;border-radius:50%;background:linear-gradient(135deg,var(--ga),var(--gb));font-size:12px}
+.mobile-search,.search-toggle{display:none}
+@media (max-width:719px){
+  .search-toggle{display:inline-flex}
+  .mobile-search{display:block;padding:10px 0 0}
+  .mobile-search .search{display:flex;min-width:0;margin:0;width:100%}
+  .search-list{left:12px !important;right:12px !important;width:auto !important}
+}
+
+/* where winners started */
+.start-bars{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.start-row{display:grid;grid-template-columns:110px minmax(0,1fr) 96px;align-items:center;gap:12px}
+.start-label{font-size:14px;font-weight:600}
+.start-bar{height:14px;border-radius:7px;background:var(--divider);position:relative;overflow:hidden}
+.start-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,var(--ga),var(--gb))}
+.start-n{text-align:right;font-weight:700}
+@media (max-width:719px){.start-row{grid-template-columns:92px minmax(0,1fr) 84px;gap:8px}}
+
+/* logo mark */
+.logo{display:flex;align-items:center}
+.logo-svg{display:block;height:44px;width:auto}
+@media (max-width:719px){.logo-svg{height:38px}}
+
+/* car image missing */
+.car-photo{flex-direction:column;gap:6px}
+.car-missing{font-size:13px;color:var(--oncardmuted)}
+
+/* split layouts with a side column */
+.split.aside-320{grid-template-columns:minmax(0,1fr) 320px}
+.split.aside-340{grid-template-columns:minmax(0,1fr) 340px}
+@media (max-width:719px){.split.aside-320,.split.aside-340{grid-template-columns:minmax(0,1fr)}}
+
+/* touch targets on phones */
+@media (max-width:719px){
+  .ib{min-width:44px;min-height:44px}
+  .chip{min-height:40px;padding:8px 14px}
+  .seg button{min-height:40px}
+  .globe-controls{gap:14px}
+}
+
+/* circuit card on phones */
+.sel-close{display:none;font-size:22px;line-height:1}
+@media (max-width:719px){
+  .sel-card{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom, 0px));z-index:60;box-shadow:0 12px 36px rgba(0,0,0,.55);max-height:46vh;overflow:auto}
+  .sel-card h2{font-size:24px !important;padding-right:48px}
+  .sel-close{display:inline-flex;position:absolute;top:8px;right:8px;background:rgba(255,255,255,.14);border-color:transparent;color:#fff}
+}

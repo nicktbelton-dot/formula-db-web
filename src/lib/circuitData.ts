@@ -2,7 +2,9 @@ import { commonName } from '@/core/circuitNames';
 import { loadLayouts } from './layoutData';
 import type { Layout } from './layouts';
 import { raceSlugById } from './seasonData';
+import { uniqueLowerIds } from './ids';
 import { getServerDb } from './serverDb';
+import { computeStarts, POLE_SQL, StartStats, Winner, WINNER_SQL } from './startStats';
 
 export type CircuitRow = {
   id: string;
@@ -20,7 +22,7 @@ export type CircuitRow = {
 
 export async function allCircuitIds(): Promise<string[]> {
   const db = await getServerDb();
-  return (await db.getAllAsync<{ circuit_id: string }>('SELECT circuit_id FROM circuit ORDER BY circuit_id')).map((r) => r.circuit_id);
+  return uniqueLowerIds((await db.getAllAsync<{ circuit_id: string }>('SELECT circuit_id FROM circuit ORDER BY circuit_id')).map((r) => r.circuit_id), 'circuit');
 }
 
 export async function loadCircuitList(): Promise<CircuitRow[]> {
@@ -53,18 +55,21 @@ export type CircuitPageData = {
   layouts: Layout[];
   races: CircuitRace[];
   top: { name: string; id: string; n: number } | null;
+  starts: StartStats | null; // where the winners started from
+  furthestSlug: string | null; // the race page of the furthest-back winner
 };
 
-export async function loadCircuit(id: string): Promise<CircuitPageData | null> {
+export async function loadCircuit(urlKey: string): Promise<CircuitPageData | null> {
   const db = await getServerDb();
   const row = await db.getFirstAsync<Omit<CircuitProfile, 'name'> & { official: string }>(
     `SELECT circuit_id AS id, name AS official, locality, country, latitude AS lat, longitude AS lon,
             total_races, first_race_year, last_race_year, COALESCE(on_calendar, 0) AS on_calendar,
             bio, bio_source_url, bio_licence
-     FROM circuit WHERE circuit_id = ?`,
-    [id]
+     FROM circuit WHERE lower(circuit_id) = lower(?)`,
+    [urlKey]
   );
   if (!row) return null;
+  const id = row.id; // the real id, whatever capitals it has
   const profile: CircuitProfile = { ...row, name: commonName(row.id, row.official) };
   const slugs = await raceSlugById();
 
@@ -93,5 +98,10 @@ export async function loadCircuit(id: string): Promise<CircuitPageData | null> {
     [id]
   );
 
-  return { profile, layouts: await loadLayouts(id), races, top };
+  // where the winners started from, and how often pole converted
+  const winners = await db.getAllAsync<Winner>(WINNER_SQL, [id]);
+  const pole = await db.getFirstAsync<{ races: number; won: number }>(POLE_SQL, [id]);
+  const starts = computeStarts(winners, pole?.races ?? 0, pole?.won ?? 0);
+
+  return { profile, layouts: await loadLayouts(id), races, top, starts, furthestSlug: starts?.furthest ? slugs.get(starts.furthest.race_id) ?? null : null };
 }

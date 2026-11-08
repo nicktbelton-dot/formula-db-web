@@ -1,11 +1,13 @@
+import { pageMeta } from '@/lib/seo';
 import type { Metadata } from 'next';
 import Link from '@/components/AppLink';
 import { GROUPS, RECORDS } from '@/core/records';
 
-export const metadata: Metadata = {
-  title: 'Formula One records and trivia · Formula DB',
+export const metadata: Metadata = pageMeta({
+  title: 'Formula One records and trivia',
   description: 'Youngest winners, longest winning streaks, closest finishes, most wins in a season and more: the Formula One records, each with its top ten.',
-};
+  path: '/records',
+});
 
 export default function Records() {
   return (

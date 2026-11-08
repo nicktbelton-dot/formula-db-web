@@ -1,4 +1,6 @@
-export const metadata = { title: 'Privacy · Formula DB' };
+import { ANALYTICS_TOKEN } from '@/lib/siteConfig';
+import { pageMeta } from '@/lib/seo';
+export const metadata = pageMeta({ title: 'Privacy', description: 'What Formula DB keeps in your browser, and the weather requests that leave it.', path: '/privacy' });
 
 export default function Privacy() {
   return (
@@ -25,6 +27,17 @@ export default function Privacy() {
         <li>To keep requests to a minimum, your browser remembers each answer, for a few hours for a forecast and about a month for typical weather.</li>
         <li>If you would rather not make these requests, you can simply not open those cards: the forecast only loads on Home and on an upcoming race, and the typical weather only on circuit pages.</li>
       </ul>
+
+      {ANALYTICS_TOKEN ? (
+        <>
+          <h2>Visitor counts</h2>
+          <p>
+            To see how many people visit and which pages are used, the site counts visits with Cloudflare Web Analytics. It uses no
+            cookies and is designed not to follow individual visitors around the web. It records page views and general details such as
+            the country and the kind of device and browser, not who you are. Cloudflare&apos;s own privacy information applies to what it does with the data.
+          </p>
+        </>
+      ) : null}
 
       <h2>If you contact us</h2>
       <p>If you email us, we use your address only to reply. Contact: info@formuladb.co.uk.</p>

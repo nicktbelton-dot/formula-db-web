@@ -1,6 +1,8 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import Link from '@/components/AppLink';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import Globe from '@/components/Globe';
 import { fold } from '@/core/search';
@@ -23,6 +25,7 @@ const span = (a: number | null, b: number | null) => (a === null ? '' : a === b 
 export default function CircuitsExplorer({ rows }: { rows: CircuitRow[] }) {
   const { favs, toggle } = useFavourites();
   const [mode, setMode] = useState<Mode>('globe');
+  const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null);
   const [show, setShow] = useState<Show>('all');
   const [onlyFavs, setOnlyFavs] = useState(false);
@@ -122,24 +125,25 @@ export default function CircuitsExplorer({ rows }: { rows: CircuitRow[] }) {
       </div>
 
       <div hidden={mode !== 'globe'}>
-        <section className="split" style={{ gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 28 }}>
+        <section className="split aside-340" style={{ gap: 28 }}>
           <div>
             {pins.length === 0 ? (
               <p className="empty" style={{ marginBottom: 12 }}>
                 No circuits match {active.length ? active.join(' + ') : 'these filters'}. <button className="link-btn" onClick={clear}>Clear filters</button>
               </p>
             ) : null}
-            <Globe pins={pins} selectedId={selected} onSelect={setSelected} />
+            <Globe pins={pins} selectedId={selected} onSelect={setSelected} onOpen={(id) => router.push(`/circuits/${urlId(id)}`)} />
           </div>
           <aside className="col" style={{ gap: 16 }}>
             {sel ? (
-              <div className="panel" style={{ padding: 18 }}>
+              <div className="panel sel-card" style={{ padding: 18 }}>
+                <button className="ib sel-close" onClick={() => setSelected(null)} aria-label="Close">×</button>
                 <span className="lbl">Selected</span>
-                <h2 style={{ fontSize: 30, color: '#fff', margin: '4px 0' }}>{sel.name}</h2>
+                <h2 style={{ fontSize: 30, color: '#fff', margin: '4px 0' }}><Link href={`/circuits/${urlId(sel.id)}`} style={{ color: 'inherit' }}>{sel.name}</Link></h2>
                 {sel.official !== sel.name ? <p className="sub">{sel.official}</p> : null}
                 <p className="sub" style={{ marginTop: 4 }}>{place(sel)}</p>
                 <p className="sub" style={{ marginTop: 4 }}>{sel.total_races} races · {span(sel.first_race_year, sel.last_race_year)}</p>
-                <Link href={`/circuits/${sel.id}`} className="toggle-link">Open the circuit ›</Link>
+                <Link href={`/circuits/${urlId(sel.id)}`} className="toggle-link">Open the circuit ›</Link>
               </div>
             ) : (
               <div className="empty">Tap a pin on the globe to see the circuit. {pins.length} {pins.length === 1 ? 'circuit is' : 'circuits are'} shown.</div>
@@ -176,7 +180,7 @@ export default function CircuitsExplorer({ rows }: { rows: CircuitRow[] }) {
                 {listRows.map((r) => (
                   <tr key={r.id}>
                     <td>
-                      <Link className="nm" href={`/circuits/${r.id}`}>{r.name}</Link>
+                      <Link className="nm" href={`/circuits/${urlId(r.id)}`}>{r.name}</Link>
                       {r.official !== r.name ? <><br /><span className="muted" style={{ fontSize: 13 }}>{r.official}</span></> : null}
                     </td>
                     <td>{place(r)}</td>
@@ -195,7 +199,7 @@ export default function CircuitsExplorer({ rows }: { rows: CircuitRow[] }) {
             {listRows.map((r) => (
               <div key={r.id} className="item">
                 <div>
-                  <b><Link href={`/circuits/${r.id}`}>{r.name}</Link></b>
+                  <b><Link href={`/circuits/${urlId(r.id)}`}>{r.name}</Link></b>
                   <div className="acc">{place(r)}</div>
                   <div className="sub">{r.total_races} races · {span(r.first_race_year, r.last_race_year)}</div>
                 </div>

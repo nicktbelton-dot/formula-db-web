@@ -1,3 +1,5 @@
+import { urlId } from '@/lib/ids';
+import { pageMeta } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import CircuitView from '@/components/CircuitView';
@@ -17,10 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!data) return { title: 'Circuit not found · Formula DB' };
   const p = data.profile;
   const place = [p.locality, p.country].filter(Boolean).join(', ');
-  return {
-    title: `${p.name} · Formula DB`,
-    description: `${p.official}${place ? `, ${place}` : ''}: ${p.total_races} Formula One races${p.first_race_year ? ` from ${p.first_race_year}${p.last_race_year && p.last_race_year !== p.first_race_year ? ` to ${p.last_race_year}` : ''}` : ''}. Every winner and pole sitter${data.layouts.length ? ' and the track layouts' : ''}.`,
-  };
+  return pageMeta({ title: `${p.name}`, description: `${p.official}${place ? `, ${place}` : ''}: ${p.total_races} Formula One races${p.first_race_year ? ` from ${p.first_race_year}${p.last_race_year && p.last_race_year !== p.first_race_year ? ` to ${p.last_race_year}` : ''}` : ''}. Every winner and pole sitter${data.layouts.length ? ' and the track layouts' : ''}.`, path: `/circuits/${urlId(p.id)}` });
 }
 
 export default async function CircuitPage({ params }: Props) {

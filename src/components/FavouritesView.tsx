@@ -1,5 +1,6 @@
 'use client';
 
+import { urlId } from '@/lib/ids';
 import { useEffect, useState } from 'react';
 import Link from '@/components/AppLink';
 import { useDbState } from '@/components/DbProvider';
@@ -58,7 +59,7 @@ export default function FavouritesView() {
           <div className="stack">
             {drivers.map((d) => (
               <div key={d.driver_id} className="item">
-                <div><b><Link href={`/drivers/${d.driver_id}`}>{d.name}</Link></b><div className="acc">{[d.nationality, years(d.first_season, d.last_season)].filter(Boolean).join(' · ')}</div></div>
+                <div><b><Link href={`/drivers/${urlId(d.driver_id)}`}>{d.name}</Link></b><div className="acc">{[d.nationality, years(d.first_season, d.last_season)].filter(Boolean).join(' · ')}</div></div>
                 <span className="end num">{d.career_wins} wins</span>{heart(`driver:${d.driver_id}`, d.name)}
               </div>
             ))}
@@ -72,7 +73,7 @@ export default function FavouritesView() {
           <div className="stack">
             {teams.map((t) => (
               <div key={t.team_id} className="item">
-                <div><b><Link href={`/teams/${t.team_id}`}>{t.name}</Link></b><div className="acc">{years(t.first_season, t.last_season)}</div></div>
+                <div><b><Link href={`/teams/${urlId(t.team_id)}`}>{t.name}</Link></b><div className="acc">{years(t.first_season, t.last_season)}</div></div>
                 <span className="end num">{t.total_wins} wins</span>{heart(`team:${t.team_id}`, t.name)}
               </div>
             ))}
@@ -86,7 +87,7 @@ export default function FavouritesView() {
           <div className="stack">
             {circuits.map((c) => (
               <div key={c.circuit_id} className="item">
-                <div><b><Link href={`/circuits/${c.circuit_id}`}>{commonName(c.circuit_id, c.name)}</Link></b><div className="acc">{[c.locality, c.country].filter(Boolean).join(', ')}</div></div>
+                <div><b><Link href={`/circuits/${urlId(c.circuit_id)}`}>{commonName(c.circuit_id, c.name)}</Link></b><div className="acc">{[c.locality, c.country].filter(Boolean).join(', ')}</div></div>
                 <span className="end num">{c.total_races} races</span>{heart(`circuit:${c.circuit_id}`, c.name)}
               </div>
             ))}

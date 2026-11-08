@@ -1,4 +1,5 @@
-﻿export const metadata = { title: 'About and sources · Formula DB' };
+import { pageMeta } from '@/lib/seo';
+export const metadata = pageMeta({ title: 'About and sources', description: 'What Formula DB is, how its numbers are checked, and how to report a mistake.', path: '/about' });
 
 export default function About() {
   return (
