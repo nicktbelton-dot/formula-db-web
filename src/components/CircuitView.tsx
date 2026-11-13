@@ -60,7 +60,7 @@ export default function CircuitView({ data }: { data: CircuitPageData }) {
         {newest?.length_km ? <Tile label="Current length" value={`${newest.length_km.toFixed(3)} km`} /> : null}
       </section>
 
-      <section className={`split${showAside ? ' aside-340' : ''}`} style={{ marginTop: 28 }}>
+      <section className={`split ${showAside ? 'aside-340' : 'single'}`} style={{ marginTop: 28 }}>
         <div className="col" style={{ gap: 20 }}>
           {layouts.length > 0 ? <TrackCard layouts={layouts} initial={layouts.length - 1} /> : null}
 

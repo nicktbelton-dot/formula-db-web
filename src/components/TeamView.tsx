@@ -59,7 +59,7 @@ function useNear() {
   return { ref, near };
 }
 
-function CarCard({ car }: { car: Car }) {
+function CarCard({ car, focused }: { car: Car; focused?: boolean }) {
   const { ref, near } = useNear();
   const [tapped, setTapped] = useState(false);
   const [original, setOriginal] = useState(false); // the small copy did not exist: use the original
@@ -71,7 +71,7 @@ function CarCard({ car }: { car: Car }) {
   const wanted = near || tapped;
 
   return (
-    <article className="panel" style={{ padding: 22 }} ref={ref}>
+    <article id={`car-${car.car_id}`} className={`panel${focused ? ' car-focus' : ''}`} style={{ padding: 22, scrollMarginTop: 90 }} ref={ref}>
       <span className="lbl">{car.year}</span>
       <h2 style={{ fontSize: 32, color: '#fff', margin: '2px 0 14px' }}>{title}</h2>
 
@@ -146,13 +146,28 @@ function CarCard({ car }: { car: Car }) {
   );
 }
 
-function Cars({ cars }: { cars: Car[] }) {
+function Cars({ cars, focus, active }: { cars: Car[]; focus: number | null; active: boolean }) {
   const [visible, setVisible] = useState(PAGE);
+  // a car chosen from the search box: show enough cards to include it, then scroll to it
+  useEffect(() => {
+    if (focus === null) return;
+    const i = cars.findIndex((c) => c.car_id === focus);
+    if (i >= 0) setVisible((v) => Math.max(v, i + 1));
+  }, [focus, cars]);
+  const scrolled = useRef(false);
+  useEffect(() => {
+    if (focus === null || !active || scrolled.current) return;
+    const el = document.getElementById(`car-${focus}`);
+    if (el) {
+      scrolled.current = true;
+      requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+    }
+  }, [focus, active, visible]);
   const shown = cars.slice(0, visible);
   const left = cars.length - shown.length;
   return (
     <div className="col" style={{ gap: 18 }}>
-      {shown.map((c) => <CarCard key={c.car_id} car={c} />)}
+      {shown.map((c) => <CarCard key={c.car_id} car={c} focused={c.car_id === focus} />)}
       {left > 0 ? (
         <button className="btn" style={{ alignSelf: 'flex-start' }} onClick={() => setVisible(visible + PAGE)}>
           Show {Math.min(PAGE, left)} more ({left} seasons left)
@@ -169,7 +184,16 @@ export default function TeamView({ data }: { data: TeamPageData }) {
   const { profile: p, members, drivers, cars } = data;
   const { favs, toggle } = useFavourites();
   const [tab, setTab] = useState<Tab>('overview');
+  const [focusCar, setFocusCar] = useState<number | null>(null);
   const [more, setMore] = useState(false);
+
+  // an address like ?tab=cars&car=123 (from the search box) opens the Cars tab at that car
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('tab') === 'cars' && cars.length > 0) setTab('cars');
+    const c = q.get('car');
+    if (c && /^\d+$/.test(c)) setFocusCar(Number(c));
+  }, [cars.length]);
   const fav = favs.has(`team:${p.team_id}`);
   const lineage = members.length > 1;
   const bio = p.bio?.trim();
@@ -246,7 +270,7 @@ export default function TeamView({ data }: { data: TeamPageData }) {
         {tab === 'cars' ? <span className="muted" style={{ fontSize: 13 }}>One card per season, newest first. Photos load as you scroll.</span> : null}
       </div>
 
-      <section className={`split${lineage ? ' aside-320' : ''}`}>
+      <section className={`split ${lineage ? 'aside-320' : 'single'}`}>
         <div className="col" style={{ gap: 20 }}>
           <div hidden={tab !== 'overview'}>
             {bio ? (
@@ -272,7 +296,7 @@ export default function TeamView({ data }: { data: TeamPageData }) {
             ) : null}
           </div>
 
-          {cars.length > 0 ? <div hidden={tab !== 'cars'}><Cars cars={cars} /></div> : null}
+          {cars.length > 0 ? <div hidden={tab !== 'cars'}><Cars cars={cars} focus={focusCar} active={tab === 'cars'} /></div> : null}
 
           <div hidden={tab !== 'drivers'}>
             {drivers.length === 0 ? <p className="empty">No race history.</p> : driverRows(drivers)}

@@ -61,8 +61,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Footer />
           </div>
         </DbProvider>
-        {LAUNCHED && ANALYTICS_TOKEN ? (
-          <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: ANALYTICS_TOKEN })} />
+        {LAUNCHED && /^[0-9a-f]{32}$/.test(ANALYTICS_TOKEN) ? (
+          <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: ANALYTICS_TOKEN })} />
         ) : null}
       </body>
     </html>

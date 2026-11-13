@@ -27,7 +27,7 @@ export default async function Seasons() {
                 <tr key={r.year}>
                   <td className="num"><Link className="link" href={`/seasons/${r.year}`}>{r.year}</Link></td>
                   <td className="nm">{r.champ_id ? <Link href={`/drivers/${urlId(r.champ_id)}`}>{r.champion}</Link> : <span className="muted">In progress</span>}</td>
-                  <td>{r.team_champion ?? <span className="muted">{r.year < 1958 ? 'Not awarded' : 'In progress'}</span>}</td>
+                  <td>{r.team_champion ? <Link href={`/teams/${urlId(r.team_champ_id!)}`}>{r.team_champion}</Link> : <span className="muted">{r.year < 1958 ? 'Not awarded' : 'In progress'}</span>}</td>
                   <td className="r num">{r.races}</td>
                 </tr>
               ))}

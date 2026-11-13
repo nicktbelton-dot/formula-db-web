@@ -3,25 +3,9 @@
 import { useEffect, useState } from 'react';
 import { describe, Day, fetchForecast, forecastWindow } from '@/lib/weather';
 import { longDate } from '@/lib/format';
+import { memoryStore } from '@/lib/memoryStore';
 
 // The forecast for a race weekend (Friday to Sunday), from Open-Meteo. Shown only for a race still to come.
-const store = {
-  get: (k: string) => {
-    try {
-      return localStorage.getItem(k);
-    } catch {
-      return null;
-    }
-  },
-  set: (k: string, v: string) => {
-    try {
-      localStorage.setItem(k, v);
-    } catch {
-      /* not remembered */
-    }
-  },
-};
-
 const dayLabel = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 export default function RaceWeather({ lat, lon, raceDate, onDark = true }: { lat: number; lon: number; raceDate: string; onDark?: boolean }) {
@@ -34,7 +18,7 @@ export default function RaceWeather({ lat, lon, raceDate, onDark = true }: { lat
     setWin(w);
     if (w.state !== 'ready') return;
     let live = true;
-    fetchForecast(lat, lon, w.from, w.to, store).then((d) => live && setDays(d));
+    fetchForecast(lat, lon, w.from, w.to, memoryStore).then((d) => live && setDays(d));
     return () => {
       live = false;
     };

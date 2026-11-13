@@ -9,9 +9,11 @@ import { commonName } from '@/core/circuitNames';
 import { RECORDS } from '@/core/records';
 import { raceSlug } from '@/lib/slug';
 import RaceWeather from '@/components/RaceWeather';
+import TitleRace from '@/components/TitleRace';
+import { loadTitleInfo, TitleInfo } from '@/lib/titleRace';
 
 type Counts = { drivers: number; teams: number; circuits: number; seasons: number };
-type Champion = { year: number; id: string; name: string; team: string | null; left: number };
+type Champion = { year: number; id: string; name: string; team: string | null; left: number | null; wins: number; podiums: number; poles: number };
 type RaceLine = { name: string; race_date: string; circuit: string | null; season_year: number; lat?: number | null; lon?: number | null };
 type Person = { driver_id: string; name: string; wins: number };
 type FavLine = { kind: 'Driver' | 'Team' | 'Circuit'; id: string; name: string; stat: string; href: string };
@@ -32,6 +34,7 @@ export default function Home() {
   const { favs } = useFavourites();
   const [counts, setCounts] = useState<Counts | null>(null);
   const [champ, setChamp] = useState<Champion | null>(null);
+  const [title, setTitle] = useState<TitleInfo | null>(null);
   const [next, setNext] = useState<RaceLine | null>(null);
   const [latest, setLatest] = useState<RaceLine | null>(null);
   const [recent, setRecent] = useState<{ year: number; name: string }[]>([]);
@@ -48,17 +51,28 @@ export default function Home() {
                   (SELECT COUNT(*) FROM circuit) AS circuits, (SELECT COUNT(*) FROM season) AS seasons`
         )
       );
-      setChamp(
-        await db.getFirstAsync<Champion>(
-          `SELECT s.year AS year, d.driver_id AS id, d.given_name || ' ' || d.family_name AS name,
-                  (SELECT t.name FROM driver_season ds JOIN team t ON t.team_id = ds.team_id
-                    WHERE ds.driver_id = s.driver_champion_id AND ds.season_year = s.year
-                    ORDER BY ds.races_entered DESC LIMIT 1) AS team,
-                  (SELECT COUNT(*) FROM race r WHERE r.season_year = s.year AND r.winner_driver_id IS NULL) AS "left"
-           FROM season s JOIN driver d ON d.driver_id = s.driver_champion_id
-           ORDER BY s.year DESC LIMIT 1`
-        )
-      );
+      // the latest champion, and how many races were still to run when the title was first decided (remembered by the data
+      // refresh; an older database without that figure simply shows no such line)
+      const champSql = (left: string) =>
+        `SELECT s.year AS year, d.driver_id AS id, d.given_name || ' ' || d.family_name AS name,
+                (SELECT t.name FROM driver_season ds JOIN team t ON t.team_id = ds.team_id
+                  WHERE ds.driver_id = s.driver_champion_id AND ds.season_year = s.year
+                  ORDER BY ds.races_entered DESC LIMIT 1) AS team,
+                ${left} AS "left",
+                -- his season, not his whole career: summed across every team he drove for that year
+                (SELECT COALESCE(SUM(ds.wins), 0) FROM driver_season ds WHERE ds.driver_id = s.driver_champion_id AND ds.season_year = s.year) AS wins,
+                (SELECT COALESCE(SUM(ds.podiums), 0) FROM driver_season ds WHERE ds.driver_id = s.driver_champion_id AND ds.season_year = s.year) AS podiums,
+                (SELECT COUNT(*) FROM race_pole p JOIN race ra ON ra.race_id = p.race_id
+                  WHERE p.driver_id = s.driver_champion_id AND ra.season_year = s.year) AS poles
+         FROM season s JOIN driver d ON d.driver_id = s.driver_champion_id
+         ORDER BY s.year DESC LIMIT 1`;
+      try {
+        setChamp(await db.getFirstAsync<Champion>(champSql('s.driver_title_left')));
+      } catch {
+        setChamp(await db.getFirstAsync<Champion>(champSql('NULL')));
+      }
+      // the title races: who leads this season's drivers' and constructors' championships, or who has clinched them
+      loadTitleInfo(db).then(setTitle).catch((e) => console.error(e));
       setNext(
         await db.getFirstAsync<RaceLine>(
           `SELECT r.name AS name, r.race_date AS race_date, c.name AS circuit, r.season_year AS season_year,
@@ -133,11 +147,21 @@ export default function Home() {
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginTop: 32 }}>
         <div className="grad" style={{ padding: 32, display: 'flex', flexDirection: 'column', gap: 12, minHeight: 280, gridColumn: 'span 1' }}>
-          <span className="lbl" style={{ color: '#FFD6DE' }}>{champ ? `${champ.year} World Champion` : 'World Champion'}</span>
+          <span className="lbl" style={{ color: '#FFD6DE' }}>{champ ? (title && champ.year < title.year ? `Reigning World Champion \u00b7 ${champ.year}` : `${champ.year} World Champion`) : 'World Champion'}</span>
           <h1 className="hero-name" style={{ fontSize: 'clamp(38px, 6vw, 64px)' }}>{champ ? <Link href={`/drivers/${urlId(champ.id)}`}>{champ.name}</Link> : dash}</h1>
           <p className="sub" style={{ fontSize: 17, maxWidth: '46ch' }}>
-            {champ ? `${champ.team ?? 'Champion'}. ${champ.left > 0 ? `The drivers' title was decided with ${champ.left} ${champ.left === 1 ? 'race' : 'races'} still to run.` : ''}` : ''}
+            {champ ? `${champ.team ?? 'Champion'}. ${title && champ.year === title.year && champ.left && champ.left > 0 ? `Clinched the drivers' title with ${champ.left} ${champ.left === 1 ? 'race' : 'races'} still to run.` : ''}` : ''}
           </p>
+          {champ ? (
+            <div className="row champ-stats" style={{ marginTop: 'auto', paddingTop: 12, gap: 28 }}>
+              {[['Wins', champ.wins], ['Podiums', champ.podiums], ['Poles', champ.poles]].map(([lab, n]) => (
+                <div key={lab as string}>
+                  <b className="num" style={{ display: 'block', fontSize: 30, fontWeight: 700, color: '#fff' }}>{n}</b>
+                  <span style={{ fontSize: 12, color: '#F3DDE6' }}>{lab} in {champ.year}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
         <div className="col">
           <div className="panel" style={{ flex: 1 }}>
@@ -154,6 +178,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {title ? <TitleRace info={title} /> : null}
 
       <section className="g4" style={{ marginTop: 20 }}>
         <Link href="/drivers" className="tile"><b className="num">{counts ? counts.drivers : dash}</b><span>Drivers, 1950 to today</span></Link>

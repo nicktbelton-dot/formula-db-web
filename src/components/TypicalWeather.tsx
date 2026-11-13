@@ -3,31 +3,15 @@
 import { useEffect, useState } from 'react';
 import Tile from '@/components/Tile';
 import { fetchTypical, monthName, Typical } from '@/lib/weather';
+import { memoryStore } from '@/lib/memoryStore';
 
 // What the weather is usually like at this circuit in the month it races: ten years of daily records, averaged.
-const store = {
-  get: (k: string) => {
-    try {
-      return localStorage.getItem(k);
-    } catch {
-      return null;
-    }
-  },
-  set: (k: string, v: string) => {
-    try {
-      localStorage.setItem(k, v);
-    } catch {
-      /* not remembered */
-    }
-  },
-};
-
 export default function TypicalWeather({ lat, lon, month }: { lat: number; lon: number; month: number }) {
   const [t, setT] = useState<Typical | null | undefined>(undefined);
 
   useEffect(() => {
     let live = true;
-    fetchTypical(lat, lon, month, store).then((r) => live && setT(r));
+    fetchTypical(lat, lon, month, memoryStore).then((r) => live && setT(r));
     return () => {
       live = false;
     };

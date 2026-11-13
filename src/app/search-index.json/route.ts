@@ -38,6 +38,31 @@ export async function GET() {
     out.push(['c', `/circuits/${urlId(c.id)}`, short, [c.locality, c.country].filter(Boolean).join(', '), `${c.name} ${c.locality ?? ''} ${c.country ?? ''} ${EXTRA_SEARCH[c.id] ?? ''}`, c.races]);
   });
 
+  // cars: one entry for each model a team ran (a model that ran for several seasons is one entry), opening the Cars tab at its card
+  try {
+    const cars = await db.getAllAsync<{ car_id: number; team_id: string; team: string; year: number; chassis_id: string | null; model: string | null; full_name: string | null; engine_name: string | null; engine_maker: string | null }>(
+      `SELECT c.car_id AS car_id, c.team_id AS team_id, t.name AS team, c.season_year AS year, c.chassis_id AS chassis_id, c.model AS model,
+              c.full_name AS full_name, c.engine_name AS engine_name, c.engine_maker AS engine_maker
+       FROM car c JOIN team t ON t.team_id = c.team_id ORDER BY c.season_year, c.car_id`
+    );
+    const groups = new Map<string, { firstYear: number; lastYear: number; last: (typeof cars)[number] }>();
+    for (const c of cars) {
+      const key = `${c.team_id}|${c.chassis_id ?? c.model ?? c.full_name ?? c.car_id}`;
+      const g = groups.get(key);
+      if (!g) groups.set(key, { firstYear: c.year, lastYear: c.year, last: c });
+      else { g.lastYear = c.year; g.last = c; }
+    }
+    for (const g of groups.values()) {
+      const c = g.last;
+      const title = c.full_name ?? c.model;
+      if (!title) continue;
+      out.push(['a', `/teams/${urlId(c.team_id)}?tab=cars&car=${c.car_id}`, title, [c.team, years(g.firstYear, g.lastYear), c.engine_name].filter(Boolean).join(' · '),
+        `${c.team} ${c.model ?? ''} ${c.chassis_id ?? ''} ${c.engine_maker ?? ''} car chassis`, 0]);
+    }
+  } catch {
+    /* an older database without cars: nothing to add */
+  }
+
   const seasons = await db.getAllAsync<{ year: number; champ: string | null; team: string | null }>(
     `SELECT s.year AS year, d.given_name || ' ' || d.family_name AS champ, t.name AS team
      FROM season s LEFT JOIN driver d ON d.driver_id = s.driver_champion_id LEFT JOIN team t ON t.team_id = s.team_champion_id`

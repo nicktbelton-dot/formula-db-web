@@ -5,7 +5,7 @@ import { raceSlug } from './slug';
 
 // Season and race pages: everything is gathered at build time from the database.
 
-export type SeasonListRow = { year: number; champ_id: string | null; champion: string | null; team_champion: string | null; races: number };
+export type SeasonListRow = { year: number; champ_id: string | null; champion: string | null; team_champ_id: string | null; team_champion: string | null; races: number };
 
 export type RaceLine = {
   slug: string;
@@ -79,7 +79,7 @@ export async function allRaceSlugs(): Promise<string[]> {
 export async function loadSeasonList(): Promise<SeasonListRow[]> {
   const db = await getServerDb();
   return db.getAllAsync<SeasonListRow>(
-    `SELECT s.year AS year, d.driver_id AS champ_id, d.given_name || ' ' || d.family_name AS champion, t.name AS team_champion,
+    `SELECT s.year AS year, d.driver_id AS champ_id, d.given_name || ' ' || d.family_name AS champion, t.team_id AS team_champ_id, t.name AS team_champion,
             (SELECT COUNT(*) FROM race r WHERE r.season_year = s.year) AS races
      FROM season s
      LEFT JOIN driver d ON d.driver_id = s.driver_champion_id

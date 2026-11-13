@@ -56,7 +56,7 @@ export default function RaceView({ data }: { data: RacePageData }) {
         </div>
       </section>
 
-      <section className={`split${d.layouts.length > 0 ? ' aside-340' : ''}`} style={{ marginTop: 32 }}>
+      <section className={`split ${d.layouts.length > 0 ? 'aside-340' : 'single'}`} style={{ marginTop: 32 }}>
       <div>
       <div className="between" style={{ margin: '0 0 14px', flexWrap: 'wrap' }}>
         {d.quali.length > 0 ? (

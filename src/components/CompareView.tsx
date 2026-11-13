@@ -140,7 +140,7 @@ export default function CompareView() {
                   <div key={w} className="panel" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <span className={`cmp-dot ${w}`} aria-hidden="true" />
                     <div>
-                      <span className="lbl">Driver {w.toUpperCase()}</span>
+                      <span className="muted" style={{ fontSize: 12, letterSpacing: '0.09em', textTransform: 'uppercase', fontWeight: 600 }}>Driver {w.toUpperCase()}</span>
                       <p className="cond" style={{ fontSize: 28, fontWeight: 700 }}><Link href={`/drivers/${urlId(d.driver_id)}`}>{d.name}</Link></p>
                     </div>
                   </div>
@@ -160,6 +160,11 @@ export default function CompareView() {
               <section className="g2" style={{ marginTop: 20, gap: 20, alignItems: 'start' }}>
                 <div className="cmp-card">
                   <h2 style={{ fontSize: 24, marginBottom: 6 }}>Pace and results</h2>
+                  <div className="pair pair-head">
+                    <span />
+                    <span className="pv a">{a.name.split(' ').pop()}</span>
+                    <span className="pv b">{b.name.split(' ').pop()}</span>
+                  </div>
                   {pairs.map(([label, va, vb, best]) => (
                     <div key={label} className="pair">
                       <span className="muted">{label}</span>
@@ -167,7 +172,7 @@ export default function CompareView() {
                       <span className={`pv b${best === 'b' ? ' best' : ''}`}>{vb}</span>
                     </div>
                   ))}
-                  <p className="muted" style={{ marginTop: 8, fontSize: 13 }}>Lower is better for these rows. The better value is in bold.</p>
+                  <p className="muted" style={{ marginTop: 8, fontSize: 13 }}>Lower is better for these rows. The better value is marked ✓.</p>
                 </div>
                 <div className="cmp-card">
                   <h2 style={{ fontSize: 24, marginBottom: 6 }}>Head to head</h2>

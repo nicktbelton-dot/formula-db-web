@@ -123,7 +123,9 @@ export default function SearchBox({ id, autoFocus = false, onDone }: { id: strin
     setText('');
     input.current?.blur();
     onDone?.();
-    router.push(href);
+    // the same page with a different car chosen: load it afresh so it reads the new address
+    if (href.split('?')[0] === window.location.pathname && href.includes('?')) window.location.href = href;
+    else router.push(href);
   };
 
   const submit = (e: FormEvent) => {

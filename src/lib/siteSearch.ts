@@ -1,13 +1,13 @@
 // The site's search: matches what is typed against names, years and places, words first, in any order.
-export type Kind = 'd' | 't' | 'c' | 's' | 'r' | 'k' | 'p';
+export type Kind = 'd' | 't' | 'c' | 'a' | 's' | 'r' | 'k' | 'p';
 export type Raw = [Kind, string, string, string, string, number];
 export type Entry = { kind: Kind; href: string; title: string; sub: string; pop: number; nf: string; words: string[]; xf: string; xwords: string[] };
 export type Hit = { entry: Entry; score: number };
 export type Group = { kind: Kind; label: string; hits: Hit[] };
 
-export const LABELS: Record<Kind, string> = { d: 'Drivers', t: 'Teams', c: 'Circuits', s: 'Seasons', r: 'Races', k: 'Records', p: 'Pages' };
-const ORDER: Kind[] = ['d', 't', 'c', 's', 'k', 'p', 'r'];
-const LIMITS: Record<Kind, number> = { d: 5, t: 4, c: 4, s: 3, r: 5, k: 3, p: 3 };
+export const LABELS: Record<Kind, string> = { d: 'Drivers', t: 'Teams', c: 'Circuits', a: 'Cars', s: 'Seasons', r: 'Races', k: 'Records', p: 'Pages' };
+const ORDER: Kind[] = ['d', 't', 'c', 'a', 's', 'k', 'p', 'r'];
+const LIMITS: Record<Kind, number> = { d: 5, t: 4, c: 4, a: 4, s: 3, r: 5, k: 3, p: 3 };
 
 // lower case, accents and punctuation removed: "Räikkönen" and "raikkonen" are the same
 export const fold = (s: string): string =>
