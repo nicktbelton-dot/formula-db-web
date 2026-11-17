@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { describe, Day, fetchForecast, forecastWindow } from '@/lib/weather';
+import { addDays, describe, Day, fetchForecast, forecastWindow } from '@/lib/weather';
 import { longDate } from '@/lib/format';
 import { memoryStore } from '@/lib/memoryStore';
 
@@ -37,10 +37,25 @@ export default function RaceWeather({ lat, lon, raceDate, onDark = true }: { lat
     );
   }
   if (days === undefined) {
+    // the exact days are already known (the fetch just hasn't answered yet), so the loading state shows the same
+    // number of day-cards the real forecast will. That keeps this block the same height before and after the fetch,
+    // instead of jumping from one line of text to a full row of cards (a layout shift Cloudflare measured as "Poor").
+    const skeleton: string[] = [];
+    for (let d = win.from; d <= win.to; d = addDays(d, 1)) skeleton.push(d);
     return (
       <div className={cls}>
         <span className="wx-title">Race weekend forecast</span>
-        <p className="wx-note">Loading the forecast…</p>
+        <div className="wx-days">
+          {skeleton.map((date) => (
+            <div key={date} className={`wx-day${date === raceDate ? ' race' : ''}`}>
+              <span className="wx-label">{date === raceDate ? 'Race day' : dayLabel(date)}</span>
+              <span className="wx-icon" aria-hidden="true">·</span>
+              <b className="num">&ndash;&deg;</b>
+              <span className="wx-line">Loading…</span>
+              <span className="wx-line">&nbsp;</span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
